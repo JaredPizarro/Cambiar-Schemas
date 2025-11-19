@@ -1,0 +1,272 @@
+[
+    {
+        "cta_debito": "61010514",
+        "cta_credito": "99999999",
+        "cod_concepto": "VACACIONES_COM_NO_DISFRUTADAS",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "OBS",
+        "tipo_concepto": "0"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "VACACIONES_DISFRUTADAS",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "VIATICOS_SALARIALES",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "HORAS_EXTRAS_DIURNAS_125",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "HORAS_EX_DO_FE_200",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "HORAS_EX_NOC_DO_FE_250",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "HORAS_RE_NOC_35",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "HORAS_RE_DO_FES_75",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "HORA_RECARGO_NOC_DO_FE_110",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "CESANTIAS",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "INCAPACIDAD_COMUN",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "INCAPACIDAD_PROFESIONAL",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "INCAPACIDAD_LABORAL",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "LIC_MATERNIDAD_PATERNIDAD",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "LICENCIA_REMUNERADA",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "BONIFICACION_SALARIAL",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "SALUD_EMPLEADO",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "PENSION_EMPLEADO",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "INTERESES_CESANTIAS",
+        "tipo_concepto": "5"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "PRIMA_SALARIAL",
+        "tipo_concepto": "5"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "FONDO_SEGURIDAD_PENSIONAL",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "SINDICATO",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "SANCION_PUBLICA",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "SANCION_PRIVADA",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "LIBRANZA",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "PAGO_TERCEROS",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "ANTICIPOS",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "PENVOLUNTARIA",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "RETENCION_FUENTE",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "AFC",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "COOPERATIVA",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "EMBARGO_FISCAL",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "PLAN_COMPLEMENTARIO",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "EDUCACION",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "REINTEGRO",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "DEUDA",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "FONDO_SUBSISTENCIA",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "FONDO_PENSION_ACCAI",
+        "tipo_concepto": "2"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "BONIFICACION_NO_SALARIAL",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "OBNS",
+        "tipo_concepto": "0"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "PRIMA_NO_SALARIAL",
+        "tipo_concepto": "5"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "VIATICOS_NO_SALARIALES",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "99999999",
+        "cta_credito": "99999999",
+        "cod_concepto": "HORAS_EXTRAS_NOCTURNAS_175",
+        "tipo_concepto": "1"
+    },
+    {
+        "cta_debito": "61010701",
+        "cta_credito": "99999999",
+        "cod_concepto": "LICENCIA_NO_REMUNERADA",
+        "tipo_concepto": "2"
+    }
+]

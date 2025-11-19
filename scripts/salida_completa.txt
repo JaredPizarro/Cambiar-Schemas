@@ -1,0 +1,6730 @@
+
+# === app.component.html ===
+
+<router-outlet></router-outlet>
+
+# === app.component.scss ===
+
+
+
+# === app.component.ts ===
+
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
+})
+export class AppComponent {
+  title = 'VaplureApp';
+}
+
+
+# === app.config.ts ===
+
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient() // Agregar HttpClien
+  ]
+};
+
+
+# === app.routes.ts ===
+
+// src/app/app.routes.ts
+import { Routes } from '@angular/router';
+import { ViewComponent } from './component/view/view.component';
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'inicio',
+    pathMatch: 'full',
+  },
+  {
+    path: 'inicio',
+    component: ViewComponent,
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./component/modules/admin/admin.routes').then(m => m.adminRoutes)
+  }
+];
+
+# === component\estructura\header\header.component.ts ===
+
+
+// src/app/components/header/header.component.ts
+import { Component, OnInit, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NavigationService } from '../../../service/navigation.service';
+
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <header id="header" [class.scrolled]="isScrolled">
+      <nav>
+        <div class="logo">
+          <i class="bi bi-lightning-charge-fill"></i>
+          VAPLURE
+        </div>
+        <ul class="nav-links">
+          <li>
+            <a href="#inicio" (click)="navigateToSection('inicio', $event)">
+              <i class="bi bi-house-fill"></i>
+              Inicio
+            </a>
+          </li>
+          <li>
+            <a href="#catalogo" (click)="navigateToSection('catalogo', $event)">
+              <i class="bi bi-grid-3x3-gap-fill"></i>
+              Catálogo
+            </a>
+          </li>
+          <li>
+            <a href="#contacto" (click)="navigateToSection('contacto', $event)">
+              <i class="bi bi-telephone-fill"></i>
+              Contacto
+            </a>
+          </li>
+        </ul>
+        <button class="mobile-menu" (click)="toggleMobileMenu()">
+          <i class="bi bi-list"></i>
+        </button>
+      </nav>
+    </header>
+  `,
+  styles: [`
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+      z-index: 1000;
+      padding: 1rem 0;
+      transition: all 0.3s ease;
+    }
+
+    header.scrolled {
+      background: rgba(10, 10, 10, 0.98);
+      box-shadow: 0 5px 30px rgba(0, 255, 136, 0.1);
+    }
+
+    nav {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2rem;
+    }
+
+    .logo {
+      font-size: 2.2rem;
+      font-family: 'Creepster', cursive;
+      font-weight: 900;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-links a:hover {
+      background: rgba(0, 255, 136, 0.1);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+    }
+  `]
+})
+export class HeaderComponent implements OnInit {
+  isScrolled = false;
+
+  constructor(private navigationService: NavigationService) {}
+
+  ngOnInit(): void {}
+
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    this.isScrolled = window.scrollY > 100;
+  }
+
+  navigateToSection(section: string, event: Event): void {
+    event.preventDefault();
+    this.navigationService.navigateToSection(section);
+    
+    if (section !== 'inicio') {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  toggleMobileMenu(): void {
+    // Implementar menú móvil si es necesario
+    console.log('Toggle mobile menu');
+  }
+}
+
+# === component\estructura\hero\hero.component.ts ===
+
+
+// src/app/components/hero/hero.component.ts
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NavigationService } from '../../../service/navigation.service';
+
+@Component({
+  selector: 'app-hero',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <section class="hero" id="inicio">
+      <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
+        <h1>VAPLURE</h1>
+        <div class="subtitle">Vapor Premium & Exclusivo</div>
+        <div class="location">
+          <i class="bi bi-geo-alt-fill"></i>
+          Montería, Córdoba - Colombia
+        </div>
+        <a href="#catalogo" class="cta-button" (click)="navigateToCatalog($event)">
+          <i class="bi bi-shop"></i>
+          Explorar Productos
+        </a>
+      </div>
+    </section>
+  `,
+  styles: [`
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: radial-gradient(circle at 30% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 70% 30%, rgba(76, 110, 245, 0.1) 0%, transparent 50%);
+      position: relative;
+    }
+
+    .hero-content h1 {
+      font-size: 4.5rem;
+      font-family: 'Creepster', cursive;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+      letter-spacing: 3px;
+    }
+
+    .hero-content .subtitle {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-dim);
+      font-weight: 300;
+    }
+
+    .hero-content .location {
+      font-size: 1rem;
+      margin-bottom: 3rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 1.2rem 2.5rem;
+      background: transparent;
+      color: var(--primary-color);
+      text-decoration: none;
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    @media (max-width: 768px) {
+      .hero-content h1 {
+        font-size: 3rem;
+      }
+
+      .hero-content .subtitle {
+        font-size: 1.1rem;
+      }
+    }
+  `]
+})
+export class HeroComponent implements OnInit {
+
+  constructor(private navigationService: NavigationService) {}
+
+  ngOnInit(): void {}
+
+  navigateToCatalog(event: Event): void {
+    event.preventDefault();
+    this.navigationService.navigateToSection('catalogo');
+  }
+}
+
+# === component\modules\admin\admin.routes.ts ===
+
+// src/app/component/modules/admin/admin.routes.ts
+import { Routes } from '@angular/router';
+import { AdminGuard } from '../../../guards/admin.guard';
+import { AdminLoginComponent } from './login/admin-login.component';
+import { ProductManagementComponent } from './products/product-management.component';
+import { SettingsManagementComponent } from './settings/settings-management.component';
+import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
+
+export const adminRoutes: Routes = [
+  {
+    path: 'login',
+    component: AdminLoginComponent
+  },
+  {
+    path: 'dashboard',
+    component: AdminDashboardComponent,
+    canActivate: [AdminGuard]
+  },
+  {
+    path: 'products',
+    component: ProductManagementComponent,
+    canActivate: [AdminGuard]
+  },
+  {
+    path: 'settings',
+    component: SettingsManagementComponent,
+    canActivate: [AdminGuard]
+  },
+  {
+    path: '',
+    redirectTo: 'login',  // Cambiar a 'login' en lugar de 'dashboard'
+    pathMatch: 'full'
+  }
+];
+
+
+# === component\modules\admin\dashboard\admin-dashboard.component.ts ===
+
+// src/app/component/modules/admin/dashboard/admin-dashboard.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { Product } from '../../../../models/product.model';
+import { AuthService } from '../../../../service/auth.service';
+import { DataService } from '../../../../service/data.service';
+
+@Component({
+  selector: 'app-admin-dashboard',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
+    <div class="admin-container">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-content">
+          <div class="logo-section">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <h1>VAPLURE Admin</h1>
+          </div>
+          <div class="header-actions">
+            <div class="admin-info">
+              <i class="bi bi-person-check-fill"></i>
+              <span>Administrador</span>
+            </div>
+            <button class="logout-btn" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i>
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+        <!-- Navigation -->
+        <nav class="admin-nav">
+          <div class="nav-section">
+            <h3>Panel Principal</h3>
+            <a routerLink="/admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+              <i class="bi bi-speedometer2"></i>
+              Dashboard
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <h3>Gestión</h3>
+            <a routerLink="/admin/products" routerLinkActive="active" class="nav-item">
+              <i class="bi bi-box-seam"></i>
+              Productos
+              <span class="badge" *ngIf="totalProducts > 0">{{ totalProducts }}</span>
+            </a>
+            <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">
+              <i class="bi bi-gear"></i>
+              Configuración
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <h3>Vista Pública</h3>
+            <a href="/inicio" target="_blank" class="nav-item external">
+              <i class="bi bi-eye"></i>
+              Ver Sitio Web
+              <i class="bi bi-box-arrow-up-right"></i>
+            </a>
+          </div>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+          <div class="dashboard-header">
+            <h2>Resumen General</h2>
+            <div class="last-update">
+              <i class="bi bi-clock"></i>
+              Última actualización: {{ getCurrentTime() }}
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card products">
+              <div class="stat-icon">
+                <i class="bi bi-box-seam-fill"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ totalProducts }}</div>
+                <div class="stat-label">Productos Totales</div>
+                <div class="stat-detail">
+                  <span class="stat-active">{{ activeProducts }} activos</span>
+                </div>
+              </div>
+              <div class="stat-action">
+                <a routerLink="/admin/products" class="btn-primary">
+                  <i class="bi bi-plus-circle"></i>
+                  Gestionar
+                </a>
+              </div>
+            </div>
+
+            <div class="stat-card categories">
+              <div class="stat-icon">
+                <i class="bi bi-tags-fill"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ totalCategories }}</div>
+                <div class="stat-label">Categorías</div>
+                <div class="stat-detail">
+                  <span class="stat-info">{{ mostPopularCategory }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-card discounts">
+              <div class="stat-icon">
+                <i class="bi bi-percent"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ productsWithDiscount }}</div>
+                <div class="stat-label">Con Descuento</div>
+                <div class="stat-detail">
+                  <span class="stat-success">{{ Math.round((productsWithDiscount / totalProducts) * 100) || 0 }}% del total</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-card contact">
+              <div class="stat-icon">
+                <i class="bi bi-whatsapp"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ whatsappNumber }}</div>
+                <div class="stat-label">WhatsApp</div>
+                <div class="stat-detail">
+                  <span class="stat-info">Contacto activo</span>
+                </div>
+              </div>
+              <div class="stat-action">
+                <a routerLink="/admin/settings" class="btn-secondary">
+                  <i class="bi bi-pencil"></i>
+                  Editar
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="activity-section">
+            <h3>Actividad Reciente</h3>
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let activity of recentActivities">
+                <div class="activity-icon" [ngClass]="activity.type">
+                  <i [class]="activity.icon"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-message">{{ activity.message }}</div>
+                  <div class="activity-time">{{ activity.time }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <h3>Acciones Rápidas</h3>
+            <div class="actions-grid">
+              <button routerLink="/admin/products" class="action-card">
+                <i class="bi bi-plus-circle-fill"></i>
+                <span>Agregar Producto</span>
+              </button>
+              <button routerLink="/admin/settings" class="action-card">
+                <i class="bi bi-telephone-fill"></i>
+                <span>Actualizar Contacto</span>
+              </button>
+              <button (click)="exportData()" class="action-card">
+                <i class="bi bi-download"></i>
+                <span>Exportar Datos</span>
+              </button>
+              <button (click)="viewSite()" class="action-card">
+                <i class="bi bi-eye-fill"></i>
+                <span>Ver Sitio</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  `,
+  styles: [`
+    .admin-container {
+      min-height: 100vh;
+      background: var(--dark-bg);
+      color: var(--text-light);
+    }
+
+    /* HEADER */
+    .admin-header {
+      background: var(--card-bg);
+      border-bottom: 2px solid var(--primary-color);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-section i {
+      font-size: 2rem;
+      color: var(--primary-color);
+    }
+
+    .logo-section h1 {
+      font-family: 'Creepster', cursive;
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    .logout-btn {
+      background: transparent;
+      color: var(--secondary-color);
+      border: 2px solid var(--secondary-color);
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .logout-btn:hover {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    /* MAIN LAYOUT */
+    .admin-main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+    }
+
+    /* NAVIGATION */
+    .admin-nav {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      height: fit-content;
+      position: sticky;
+      top: 120px;
+    }
+
+    .nav-section {
+      margin-bottom: 2rem;
+    }
+
+    .nav-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .nav-section h3 {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 1rem 0;
+      font-weight: 600;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      color: var(--text-light);
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: rgba(0, 255, 136, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-item.active {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    .nav-item.external i:last-child {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .nav-item .badge {
+      background: var(--accent-color);
+      color: var(--dark-bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* DASHBOARD CONTENT */
+    .dashboard-content {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 15px;
+      padding: 2rem;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .dashboard-header h2 {
+      color: var(--primary-color);
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .last-update {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--card-border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    .stat-card.products { border-left: 4px solid var(--primary-color); }
+    .stat-card.categories { border-left: 4px solid var(--secondary-color); }
+    .stat-card.discounts { border-left: 4px solid var(--accent-color); }
+    .stat-card.contact { border-left: 4px solid var(--purple-accent); }
+
+    .stat-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: var(--gradient);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon i {
+      font-size: 1.5rem;
+      color: var(--dark-bg);
+    }
+
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      font-weight: 500;
+    }
+
+    .stat-detail {
+      margin-bottom: 1rem;
+    }
+
+    .stat-active { color: var(--primary-color); }
+    .stat-success { color: var(--accent-color); }
+    .stat-info { color: var(--text-dim); }
+
+    .stat-action {
+      margin-top: 1rem;
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      border: 2px solid;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: transparent;
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-dim);
+      border-color: var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--card-border);
+      color: var(--text-light);
+    }
+
+    /* ACTIVITY SECTION */
+    .activity-section {
+      margin-bottom: 3rem;
+    }
+
+    .activity-section h3 {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .activity-icon.product { background: rgba(0, 255, 136, 0.2); }
+    .activity-icon.settings { background: rgba(76, 110, 245, 0.2); }
+    .activity-icon.system { background: rgba(0, 212, 255, 0.2); }
+
+    .activity-icon i {
+      font-size: 1.1rem;
+      color: var(--text-light);
+    }
+
+    .activity-message {
+      color: var(--text-light);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .activity-time {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions h3 {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .action-card {
+      background: rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      color: var(--text-light);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .action-card:hover {
+      border-color: var(--primary-color);
+      background: rgba(0, 255, 136, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .action-card i {
+      font-size: 2rem;
+      color: var(--primary-color);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .admin-main {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .admin-nav {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        padding: 0 1rem;
+      }
+
+      .admin-main {
+        padding: 1rem;
+      }
+
+      .dashboard-content {
+        padding: 1.5rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+  `]
+})
+export class AdminDashboardComponent implements OnInit, OnDestroy {
+  Math = Math;
+  totalProducts = 0;
+  activeProducts = 0;
+  totalCategories = 0;
+  productsWithDiscount = 0;
+  mostPopularCategory = '';
+  whatsappNumber = '';
+  
+  recentActivities = [
+    {
+      type: 'system',
+      icon: 'bi bi-check-circle-fill',
+      message: 'Sistema iniciado correctamente',
+      time: 'Hace 2 minutos'
+    },
+    {
+      type: 'product',
+      icon: 'bi bi-box-seam-fill',
+      message: 'Base de datos de productos cargada',
+      time: 'Hace 5 minutos'
+    },
+    {
+      type: 'settings',
+      icon: 'bi bi-gear-fill',
+      message: 'Configuración verificada',
+      time: 'Hace 8 minutos'
+    }
+  ];
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private authService: AuthService,
+    private dataService: DataService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadDashboardData(): void {
+    // Cargar productos
+    this.dataService.products$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((products: any) => {
+        this.totalProducts = products.length;
+        this.activeProducts = products.filter((p: { active: boolean; }) => p.active !== false).length;
+        this.productsWithDiscount = products.filter((p: { discount: number; }) => p.discount > 0).length;
+        
+        // Calcular categorías
+        const categories = [...new Set(products.map((p: { category: any; }) => p.category))];
+        this.totalCategories = categories.length;
+        
+        // Encontrar categoría más popular
+        const categoryCounts = categories.map(cat => ({
+          category: cat,
+          count: products.filter((p: { category: unknown; }) => p.category === cat).length
+        }));
+        const mostPopular: any = categoryCounts.sort((a, b) => b.count - a.count)[0];
+        this.mostPopularCategory = mostPopular ? this.getCategoryDisplayName(mostPopular.category) : 'N/A';
+      });
+
+    // Cargar configuración
+    this.dataService.settings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((settings: any) => {
+        if (settings) {
+          this.whatsappNumber = settings.contact.whatsapp;
+        }
+      });
+  }
+
+  getCurrentTime(): string {
+    return new Date().toLocaleString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  private getCategoryDisplayName(category: string): string {
+    const names: Record<string, string> = {
+      'desechable': 'Desechables',
+      'pod': 'Pod Systems',
+      'liquid': 'E-Liquids',
+      'mod': 'Mods',
+      'kit': 'Kits',
+      'recargable': 'Recargables'
+    };
+    return names[category] || category;
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/admin/login']);
+  }
+
+  exportData(): void {
+    const products = this.dataService.getProducts();
+    const settings = this.dataService.getSettings();
+    
+    const exportData = {
+      products,
+      settings,
+      exportedAt: new Date().toISOString()
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `vaplure-backup-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+  }
+
+  viewSite(): void {
+    window.open('/inicio', '_blank');
+  }
+}
+
+# === component\modules\admin\login\admin-login.component.ts ===
+
+// src/app/modules/admin/login/admin-login.component.ts
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../../service/auth.service';
+
+@Component({
+  selector: 'app-admin-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="logo">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <h1>VAPLURE</h1>
+          </div>
+          <h2>Administración</h2>
+          <p>Acceso restringido al panel de control</p>
+        </div>
+
+        <form (ngSubmit)="login()" #loginForm="ngForm" class="login-form">
+          <div class="form-group">
+            <label for="password">Contraseña:</label>
+            <div class="password-input">
+              <input 
+                type="password" 
+                id="password"
+                name="password"
+                [(ngModel)]="password"
+                required
+                [class.error]="hasError"
+                placeholder="Ingresa tu contraseña"
+                (keyup.enter)="login()">
+              <i class="bi bi-lock-fill"></i>
+            </div>
+          </div>
+
+          <div class="error-message" *ngIf="hasError">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ errorMessage }}
+          </div>
+
+          <button 
+            type="submit" 
+            class="login-button"
+            [disabled]="isLoading || !password">
+            <i class="bi" [class.bi-arrow-right-circle-fill]="!isLoading" [class.bi-hourglass-split]="isLoading"></i>
+            {{ isLoading ? 'Verificando...' : 'Ingresar' }}
+          </button>
+        </form>
+
+        <div class="security-info">
+          <div class="security-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Conexión segura</span>
+          </div>
+          <div class="security-item">
+            <i class="bi bi-clock-history"></i>
+            <span>Sesión de 30 minutos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--dark-bg);
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(76, 110, 245, 0.1) 0%, transparent 50%);
+      padding: 2rem;
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      border: 2px solid var(--primary-color);
+      border-radius: 20px;
+      padding: 3rem;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: var(--shadow-glow);
+      backdrop-filter: blur(10px);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .logo i {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+    }
+
+    .logo h1 {
+      font-family: 'Creepster', cursive;
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    .login-header h2 {
+      color: var(--text-light);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .login-header p {
+      color: var(--text-dim);
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .login-form {
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .password-input {
+      position: relative;
+    }
+
+    .password-input input {
+      width: 100%;
+      padding: 1rem 1rem 1rem 3rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      color: var(--text-light);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .password-input input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.2);
+    }
+
+    .password-input input.error {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.2);
+    }
+
+    .password-input i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 1.1rem;
+    }
+
+    .password-input input:focus + i {
+      color: var(--primary-color);
+    }
+
+    .error-message {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #ff4757;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      padding: 0.8rem 1rem;
+      background: rgba(255, 71, 87, 0.1);
+      border: 1px solid rgba(255, 71, 87, 0.3);
+      border-radius: 8px;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 1.2rem 1.5rem;
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    .login-button:hover:not(:disabled) {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .login-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .security-info {
+      display: flex;
+      justify-content: space-around;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .security-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    .security-item i {
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .login-container {
+        padding: 1rem;
+      }
+
+      .login-card {
+        padding: 2rem;
+      }
+
+      .logo h1 {
+        font-size: 2rem;
+      }
+
+      .login-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .security-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+      }
+    }
+  `]
+})
+export class AdminLoginComponent implements OnInit {
+  password = '';
+  hasError = false;
+  errorMessage = '';
+  isLoading = false;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Si ya está autenticado, redirigir al dashboard
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/admin/dashboard']);
+    }
+  }
+
+  login(): void {
+    if (!this.password) {
+      this.showError('Por favor ingresa tu contraseña');
+      return;
+    }
+
+    this.isLoading = true;
+    this.hasError = false;
+
+    // Simular delay de autenticación
+    setTimeout(() => {
+      const success = this.authService.login(this.password);
+      
+      if (success) {
+        this.router.navigate(['/admin/dashboard']);
+      } else {
+        this.showError('Contraseña incorrecta. Intenta nuevamente.');
+        this.password = '';
+      }
+      
+      this.isLoading = false;
+    }, 800);
+  }
+
+  private showError(message: string): void {
+    this.hasError = true;
+    this.errorMessage = message;
+    
+    // Limpiar error después de 5 segundos
+    setTimeout(() => {
+      this.hasError = false;
+      this.errorMessage = '';
+    }, 5000);
+  }
+}
+
+# === component\modules\admin\products\product-management.component.html ===
+
+
+<div class="admin-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div>
+                <a routerLink="/admin/dashboard" class="back-link">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver al Dashboard
+                </a>
+                <h1>Gestión de Productos</h1>
+                <p>Administra el catálogo de productos de tu tienda</p>
+            </div>
+            <button class="btn-primary" (click)="showProductForm()">
+                <i class="bi bi-plus-circle"></i>
+                Agregar Producto
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number">{{ products.length }}</span>
+            <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ activeProducts }}</span>
+            <span class="stat-label">Activos</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ productsWithDiscount }}</span>
+            <span class="stat-label">Con Descuento</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label>Buscar:</label>
+                <input type="text" [(ngModel)]="searchTerm" (input)="filterProducts()"
+                    placeholder="Nombre, descripción o categoría...">
+            </div>
+            <div class="filter-group">
+                <label>Categoría:</label>
+                <select [(ngModel)]="selectedCategory" (change)="filterProducts()">
+                    <option value="">Todas</option>
+                    <option value="desechable">Desechables</option>
+                    <option value="pod">Pod Systems</option>
+                    <option value="liquid">E-Liquids</option>
+                    <option value="mod">Mods</option>
+                    <option value="kit">Kits</option>
+                    <option value="recargable">Recargables</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Estado:</label>
+                <select [(ngModel)]="selectedStatus" (change)="filterProducts()">
+                    <option value="">Todos</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="products-table-container">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Descuento</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let product of filteredProducts; trackBy: trackByProductId" class="product-row"
+                        [class.inactive]="!product?.active">
+                        <td class="product-image">
+                            <div class="image-container">
+                                <img [src]="product.image" [alt]="product.name" (error)="onImageError($event)"
+                                    loading="lazy">
+                                <i class="bi bi-image fallback-icon" *ngIf="!product.image"></i>
+                            </div>
+                        </td>
+                        <td class="product-info">
+                            <div class="product-name">{{ product.name }}</div>
+                            <div class="product-description">{{ product.description | slice:0:80 }}...</div>
+                        </td>
+                        <td class="category">
+                            <span class="category-badge" [attr.data-category]="product.category">
+                                {{ getCategoryDisplayName(product.category) }}
+                            </span>
+                        </td>
+                        <td class="price">
+                            <div class="price-container">
+                                <span class="current-price">${{ getFinalPrice(product) | number:'1.0-0' }}</span>
+                                <span class="original-price" *ngIf="product.discount > 0">${{ product.price |
+                                    number:'1.0-0' }}</span>
+                            </div>
+                        </td>
+                        <td class="discount">
+                            <span class="discount-badge" *ngIf="product.discount > 0">
+                                -{{ product.discount }}%
+                            </span>
+                            <span class="no-discount" *ngIf="product.discount === 0">Sin descuento</span>
+                        </td>
+                        <td class="stock">
+                            <span class="stock-badge" [class.low-stock]="(product?.stock ?? 0) < 10">
+                                {{ product?.stock ?? 0 }}
+                            </span>
+                        </td>
+                        <td class="status">
+                            <span class="status-badge" [class.active]="product?.active"
+                                [class.inactive]="!product?.active">
+                                {{ product?.active ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </td>
+                        <td class="actions">
+                            <button class="action-btn edit" (click)="editProduct(product)" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="action-btn toggle" (click)="toggleProductStatus(product)"
+                                [title]="product?.active ? 'Desactivar' : 'Activar'">
+                                <i class="bi" [class.bi-eye-slash]="product?.active"
+                                    [class.bi-eye]="!product?.active"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="confirmDelete(product)" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="no-results" *ngIf="filteredProducts.length === 0">
+                <i class="bi bi-search"></i>
+                <p>No se encontraron productos que coincidan con los filtros aplicados</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Form Modal -->
+    <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ editingProduct ? 'Editar' : 'Agregar' }} Producto</h2>
+                <button class="close-btn" (click)="closeModal()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="product-form">
+                <div class="form-grid">
+                    <!-- Información básica -->
+                    <div class="form-section">
+                        <h3>Información Básica</h3>
+
+                        <div class="form-group">
+                            <label for="name">Nombre del Producto *</label>
+                            <input type="text" id="name" formControlName="name"
+                                placeholder="Ej: Vape Desechable Premium">
+                            <div class="error"
+                                *ngIf="productForm.get('name')?.touched && productForm.get('name')?.errors?.['required']">
+                                El nombre es obligatorio
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Descripción *</label>
+                            <textarea id="description" formControlName="description"
+                                placeholder="Describe las características principales del producto..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">Categoría *</label>
+                            <select id="category" formControlName="category">
+                                <option value="">Seleccionar categoría</option>
+                                <option value="desechable">Desechables</option>
+                                <option value="pod">Pod Systems</option>
+                                <option value="liquid">E-Liquids</option>
+                                <option value="mod">Mods</option>
+                                <option value="kit">Kits</option>
+                                <option value="recargable">Recargables</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">URL de la Imagen</label>
+                            <input type="url" id="image" formControlName="image"
+                                placeholder="https://ejemplo.com/imagen.jpg">
+                            <small>Opcional: URL de la imagen del producto</small>
+                        </div>
+                    </div>
+
+                    <!-- Precios y stock -->
+                    <div class="form-section">
+                        <h3>Precios y Stock</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="price">Precio *</label>
+                                <input type="number" id="price" formControlName="price" placeholder="25000" min="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="discount">Descuento (%)</label>
+                                <input type="number" id="discount" formControlName="discount" placeholder="15" min="0"
+                                    max="100">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="stock">Stock</label>
+                                <input type="number" id="stock" formControlName="stock" placeholder="50" min="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-group">
+                                    <input type="checkbox" formControlName="active">
+                                    <span class="checkmark"></span>
+                                    Producto activo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Especificaciones técnicas -->
+                    <div class="form-section">
+                        <h3>Especificaciones Técnicas</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="puffs">Puffs</label>
+                                <input type="text" id="puffs" formControlName="puffs" placeholder="2000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nicotine">Nicotina</label>
+                                <input type="text" id="nicotine" formControlName="nicotine" placeholder="5%">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="battery">Batería</label>
+                            <input type="text" id="battery" formControlName="battery" placeholder="850mAh">
+                        </div>
+                    </div>
+
+                    <!-- Sabores -->
+                    <div class="form-section full-width">
+                        <h3>Sabores Disponibles</h3>
+                        <div class="flavors-container">
+                            <div class="flavors-list" formArrayName="flavors">
+                                <div *ngFor="let flavor of flavorsArray.controls; let i = index" class="flavor-item">
+                                    <input type="text" [formControlName]="i" placeholder="Ej: Mango Tropical">
+                                    <button type="button" class="remove-flavor" (click)="removeFlavor(i)">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-flavor" (click)="addFlavor()">
+                                <i class="bi bi-plus"></i>
+                                Agregar Sabor
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Características -->
+                    <div class="form-section full-width">
+                        <h3>Características</h3>
+                        <div class="features-container">
+                            <div class="features-list" formArrayName="features">
+                                <div *ngFor="let feature of featuresArray.controls; let i = index" class="feature-item">
+                                    <input type="text" [formControlName]="i" placeholder="Ej: Sin Mantenimiento">
+                                    <button type="button" class="remove-feature" (click)="removeFeature(i)">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-feature" (click)="addFeature()">
+                                <i class="bi bi-plus"></i>
+                                Agregar Característica
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" (click)="closeModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary" [disabled]="productForm.invalid">
+                        <i class="bi bi-check-circle"></i>
+                        {{ editingProduct ? 'Actualizar' : 'Crear' }} Producto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+        <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Confirmar Eliminación</h2>
+            </div>
+            <div class="modal-body">
+                <div class="delete-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <p>¿Estás seguro de que deseas eliminar el producto <strong>{{ productToDelete?.name }}</strong>?
+                    </p>
+                    <p class="warning-text">Esta acción no se puede deshacer.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
+                <button class="btn-danger" (click)="deleteProduct()">
+                    <i class="bi bi-trash"></i>
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+# === component\modules\admin\products\product-management.component.scss ===
+
+.admin-container {
+    min-height: 100vh;
+    background: var(--dark-bg);
+    color: var(--text-light);
+}
+
+/* PAGE HEADER */
+.page-header {
+    background: var(--card-bg);
+    border-bottom: 2px solid var(--primary-color);
+    padding: 2rem 0;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+}
+
+.page-header h1 {
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+}
+
+.page-header p {
+    color: var(--text-dim);
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* STATS BAR */
+.stats-bar {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+    padding: 1rem 0;
+}
+
+.stats-bar {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    gap: 3rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* MAIN CONTENT */
+.main-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* FILTERS */
+.filters-section {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* PRODUCTS TABLE */
+.products-table-container {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.products-table th {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-light);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 2px solid var(--card-border);
+}
+
+.products-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.product-row.inactive {
+    opacity: 0.6;
+}
+
+.product-row:hover {
+    background: rgba(0, 255, 136, 0.05);
+}
+
+/* TABLE CELLS */
+.product-image .image-container {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--gradient-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fallback-icon {
+    font-size: 1.5rem;
+    color: var(--text-dim);
+}
+
+.product-info .product-name {
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.3rem;
+}
+
+.product-info .product-description {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+}
+
+.category-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.category-badge[data-category="desechable"] {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--primary-color);
+}
+
+.category-badge[data-category="pod"] {
+    background: rgba(76, 110, 245, 0.2);
+    color: var(--secondary-color);
+}
+
+.category-badge[data-category="liquid"] {
+    background: rgba(0, 212, 255, 0.2);
+    color: var(--accent-color);
+}
+
+.price-container .current-price {
+    font-weight: 700;
+    color: var(--accent-color);
+    font-size: 1rem;
+}
+
+.price-container .original-price {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+    margin-left: 0.5rem;
+}
+
+.discount-badge {
+    background: var(--secondary-color);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.no-discount {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+}
+
+.stock-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--primary-color);
+}
+
+.stock-badge.low-stock {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+}
+
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--primary-color);
+}
+
+.status-badge.inactive {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.action-btn.edit {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--primary-color);
+}
+
+.action-btn.toggle {
+    background: rgba(76, 110, 245, 0.2);
+    color: var(--secondary-color);
+}
+
+.action-btn.delete {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.no-results {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-dim);
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* MODAL */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.modal-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+/* FORM */
+.product-form {
+    padding: 2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.form-section {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.form-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-section h3 {
+    color: var(--text-light);
+    margin: 0 0 1.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+}
+
+.error {
+    color: #ff4757;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+/* DYNAMIC LISTS */
+.flavors-container,
+.features-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.flavors-list,
+.features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.flavor-item,
+.feature-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.flavor-item input,
+.feature-item input {
+    flex: 1;
+}
+
+.remove-flavor,
+.remove-feature {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.remove-flavor:hover,
+.remove-feature:hover {
+    background: #ff4757;
+    color: white;
+}
+
+.add-flavor,
+.add-feature {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px dashed var(--primary-color);
+    padding: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: inherit;
+}
+
+.add-flavor:hover,
+.add-feature:hover {
+    background: rgba(0, 255, 136, 0.1);
+}
+
+/* FORM ACTIONS */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    border: 2px solid;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-dim);
+    border-color: var(--card-border);
+}
+
+.btn-secondary:hover {
+    background: var(--card-border);
+    color: var(--text-light);
+}
+
+.btn-danger {
+    background: transparent;
+    color: #ff4757;
+    border-color: #ff4757;
+}
+
+.btn-danger:hover {
+    background: #ff4757;
+    color: white;
+}
+
+/* DELETE MODAL */
+.delete-modal {
+    max-width: 500px;
+}
+
+.modal-body {
+    padding: 1.5rem 2rem;
+}
+
+.delete-warning {
+    text-align: center;
+}
+
+.delete-warning i {
+    font-size: 3rem;
+    color: #ff4757;
+    margin-bottom: 1rem;
+}
+
+.delete-warning p {
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+.warning-text {
+    color: #ff4757;
+    font-size: 0.9rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--card-border);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .filters-section {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .filter-group {
+        min-width: auto;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .main-content,
+    .header-content {
+        padding: 1rem;
+    }
+
+    .products-table-container {
+        overflow-x: auto;
+    }
+
+    .products-table {
+        min-width: 800px;
+    }
+
+    .modal-content {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+# === component\modules\admin\products\product-management.component.ts ===
+
+// src/app/modules/admin/products/product-management.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { DataService } from '../../../../service/data.service';
+import { AuthService } from '../../../../service/auth.service';
+import { CreateProductRequest, Product } from '../../../../models/product.model';
+
+@Component({
+    selector: 'app-product-management',
+    standalone: true,
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+    templateUrl: './product-management.component.html',
+    styleUrls: ['./product-management.component.scss']
+})
+export class ProductManagementComponent implements OnInit, OnDestroy {
+    products: Product[] = [];
+    filteredProducts: Product[] = [];
+
+    // Form
+    productForm!: FormGroup;
+    showModal = false;
+    editingProduct: Product | null = null;
+
+    // Delete confirmation
+    showDeleteModal = false;
+    productToDelete: Product | null = null;
+
+    // Filters
+    searchTerm = '';
+    selectedCategory = '';
+    selectedStatus = '';
+
+    // Stats
+    activeProducts = 0;
+    productsWithDiscount = 0;
+
+    private destroy$ = new Subject<void>();
+
+    constructor(
+        private dataService: DataService,
+        private authService: AuthService,
+        private fb: FormBuilder
+    ) {
+        this.initForm();
+    }
+
+    ngOnInit(): void {
+        this.loadProducts();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    private initForm(): void {
+        this.productForm = this.fb.group({
+            name: ['', [Validators.required]],
+            description: ['', [Validators.required]],
+            category: ['', [Validators.required]],
+            image: [''],
+            imageAlt: [''],
+            price: [0, [Validators.required, Validators.min(0)]],
+            discount: [0, [Validators.min(0), Validators.max(100)]],
+            stock: [0, [Validators.min(0)]],
+            active: [true],
+            puffs: [''],
+            nicotine: [''],
+            battery: [''],
+            flavors: this.fb.array([]),
+            features: this.fb.array([])
+        });
+    }
+
+    get flavorsArray(): FormArray {
+        return this.productForm.get('flavors') as FormArray;
+    }
+
+    get featuresArray(): FormArray {
+        return this.productForm.get('features') as FormArray;
+    }
+
+    private loadProducts(): void {
+        this.dataService.products$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(products => {
+                this.products = products;
+                this.updateStats();
+                this.filterProducts();
+            });
+    }
+
+    private updateStats(): void {
+        this.activeProducts = this.products.filter(p => (p as any).active !== false).length;
+        this.productsWithDiscount = this.products.filter(p => p.discount > 0).length;
+    }
+
+    filterProducts(): void {
+        let filtered = [...this.products];
+
+        // Search filter
+        if (this.searchTerm) {
+            const term = this.searchTerm.toLowerCase();
+            filtered = filtered.filter(p =>
+                p.name.toLowerCase().includes(term) ||
+                p.description.toLowerCase().includes(term) ||
+                p.category.toLowerCase().includes(term)
+            );
+        }
+
+        // Category filter
+        if (this.selectedCategory) {
+            filtered = filtered.filter(p => p.category === this.selectedCategory);
+        }
+
+        // Status filter
+        if (this.selectedStatus) {
+            if (this.selectedStatus === 'active') {
+                filtered = filtered.filter(p => (p as any).active !== false);
+            } else if (this.selectedStatus === 'inactive') {
+                filtered = filtered.filter(p => (p as any).active === false);
+            }
+        }
+
+        this.filteredProducts = filtered;
+    }
+
+    showProductForm(product?: Product): void {
+        this.editingProduct = product || null;
+        this.resetForm();
+
+        if (product) {
+            this.populateForm(product);
+        } else {
+            // Add initial flavor and feature
+            this.addFlavor();
+            this.addFeature();
+        }
+
+        this.showModal = true;
+    }
+
+    private resetForm(): void {
+        this.productForm.reset({
+            name: '',
+            description: '',
+            category: '',
+            image: '',
+            imageAlt: '',
+            price: 0,
+            discount: 0,
+            stock: 0,
+            active: true,
+            puffs: '',
+            nicotine: '',
+            battery: ''
+        });
+
+        // Clear arrays
+        while (this.flavorsArray.length) {
+            this.flavorsArray.removeAt(0);
+        }
+        while (this.featuresArray.length) {
+            this.featuresArray.removeAt(0);
+        }
+    }
+
+    private populateForm(product: Product): void {
+        this.productForm.patchValue({
+            name: product.name,
+            description: product.description,
+            category: product.category,
+            image: product.image,
+            imageAlt: product.imageAlt || '',
+            price: product.price,
+            discount: product.discount,
+            stock: (product as any).stock || 0,
+            active: (product as any).active !== false,
+            puffs: product.puffs,
+            nicotine: product.nicotine,
+            battery: product.battery
+        });
+
+        // Populate flavors
+        product.flavors.forEach(flavor => {
+            this.flavorsArray.push(this.fb.control(flavor));
+        });
+
+        // Populate features
+        product.features.forEach(feature => {
+            this.featuresArray.push(this.fb.control(feature));
+        });
+    }
+
+    addFlavor(): void {
+        this.flavorsArray.push(this.fb.control(''));
+    }
+
+    removeFlavor(index: number): void {
+        this.flavorsArray.removeAt(index);
+    }
+
+    addFeature(): void {
+        this.featuresArray.push(this.fb.control(''));
+    }
+
+    removeFeature(index: number): void {
+        this.featuresArray.removeAt(index);
+    }
+
+    saveProduct(): void {
+        if (this.productForm.valid) {
+            const formValue = this.productForm.value;
+
+            // Filter empty flavors and features
+            const flavors = formValue.flavors.filter((f: string) => f.trim());
+            const features = formValue.features.filter((f: string) => f.trim());
+
+            // Usar el tipo CreateProductRequest para nuevos productos
+            const productData: CreateProductRequest = {
+                name: formValue.name,
+                description: formValue.description,
+                category: formValue.category,
+                image: formValue.image || '',
+                imageAlt: formValue.imageAlt || formValue.name,
+                price: formValue.price,
+                discount: formValue.discount || 0,
+                stock: formValue.stock || 0,
+                active: formValue.active !== false,
+                puffs: formValue.puffs || '',
+                nicotine: formValue.nicotine || '',
+                battery: formValue.battery || '',
+                flavors,
+                features
+            };
+
+            if (this.editingProduct) {
+                // Para actualizaciones, usar Partial<Product>
+                const updateData: Partial<Product> = {
+                    ...productData,
+                    // No incluir createdAt en actualizaciones
+                    updatedAt: new Date().toISOString()
+                };
+                this.dataService.updateProduct(this.editingProduct.id, updateData);
+            } else {
+                // Para creación, usar CreateProductRequest
+                this.dataService.addProduct(productData);
+            }
+
+            this.closeModal();
+        }
+    }
+
+    closeModal(): void {
+        this.showModal = false;
+        this.editingProduct = null;
+    }
+
+    editProduct(product: Product): void {
+        this.showProductForm(product);
+    }
+
+    toggleProductStatus(product: Product): void {
+        const newStatus = !(product as any).active;
+        this.dataService.updateProduct(product.id, { active: newStatus } as any);
+    }
+
+    confirmDelete(product: Product): void {
+        this.productToDelete = product;
+        this.showDeleteModal = true;
+    }
+
+    deleteProduct(): void {
+        if (this.productToDelete) {
+            this.dataService.deleteProduct(this.productToDelete.id);
+            this.cancelDelete();
+        }
+    }
+
+    cancelDelete(): void {
+        this.showDeleteModal = false;
+        this.productToDelete = null;
+    }
+
+    getFinalPrice(product: Product): number {
+        return product.price * (1 - product.discount / 100);
+    }
+
+    getCategoryDisplayName(category: string): string {
+        const names: Record<string, string> = {
+            'desechable': 'Desechables',
+            'pod': 'Pod Systems',
+            'liquid': 'E-Liquids',
+            'mod': 'Mods',
+            'kit': 'Kits',
+            'recargable': 'Recargables'
+        };
+        return names[category] || category;
+    }
+
+    onImageError(event: any): void {
+        event.target.style.display = 'none';
+        const fallback = event.target.nextElementSibling;
+        if (fallback) {
+            fallback.style.display = 'flex';
+        }
+    }
+
+    trackByProductId(index: number, product: Product): number {
+        return product.id;
+    }
+
+    private getProductProperty<K extends keyof Product>(product: Product, key: K, defaultValue: any): any {
+        return product[key] !== undefined ? product[key] : defaultValue;
+    }
+}
+
+# === component\modules\admin\settings\settings-management.component.ts ===
+
+// src/app/modules/admin/settings/settings-management.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { DataService, Settings } from '../../../../service/data.service';
+import { AuthService } from '../../../../service/auth.service';
+
+@Component({
+  selector: 'app-settings-management',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  template: `
+    <div class="admin-container">
+      <!-- Header -->
+      <div class="page-header">
+        <div class="header-content">
+          <div>
+            <a routerLink="/admin/dashboard" class="back-link">
+              <i class="bi bi-arrow-left"></i>
+              Volver al Dashboard
+            </a>
+            <h1>Configuración</h1>
+            <p>Gestiona la información de contacto y configuración general</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn-secondary" (click)="resetToDefaults()">
+              <i class="bi bi-arrow-clockwise"></i>
+              Restaurar
+            </button>
+            <button class="btn-success" (click)="saveAllSettings()" [disabled]="!hasChanges">
+              <i class="bi bi-check-circle"></i>
+              Guardar Cambios
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="settings-grid">
+          
+          <!-- Contact Information -->
+          <div class="settings-section">
+            <div class="section-header">
+              <h2>
+                <i class="bi bi-telephone-fill"></i>
+                Información de Contacto
+              </h2>
+              <p>Configura los datos de contacto que aparecen en el sitio web</p>
+            </div>
+
+            <form [formGroup]="contactForm" class="settings-form">
+              <div class="form-group">
+                <label for="whatsapp">Número de WhatsApp *</label>
+                <div class="input-with-prefix">
+                  <span class="prefix">+57</span>
+                  <input type="tel" id="whatsapp" formControlName="whatsapp" 
+                         placeholder="3207682417" maxlength="10">
+                </div>
+                <small>Número sin el código de país (+57)</small>
+                <div class="error" *ngIf="contactForm.get('whatsapp')?.touched && contactForm.get('whatsapp')?.errors?.['required']">
+                  El número de WhatsApp es obligatorio
+                </div>
+                <div class="error" *ngIf="contactForm.get('whatsapp')?.touched && contactForm.get('whatsapp')?.errors?.['pattern']">
+                  Ingresa un número válido de 10 dígitos
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email de Contacto</label>
+                <input type="email" id="email" formControlName="email" 
+                       placeholder="info@vaplure.com">
+                <div class="error" *ngIf="contactForm.get('email')?.touched && contactForm.get('email')?.errors?.['email']">
+                  Ingresa un email válido
+                </div>
+              </div>
+
+              <div class="whatsapp-preview" *ngIf="contactForm.get('whatsapp')?.value">
+                <h4>Vista previa:</h4>
+                <a [href]="getWhatsAppUrl()" target="_blank" class="whatsapp-link">
+                  <i class="bi bi-whatsapp"></i>
+                  +57 {{ contactForm.get('whatsapp')?.value }}
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </div>
+            </form>
+          </div>
+
+          <!-- Delivery Configuration -->
+          <div class="settings-section">
+            <div class="section-header">
+              <h2>
+                <i class="bi bi-truck"></i>
+                Configuración de Entregas
+              </h2>
+              <p>Configura la información de delivery y horarios</p>
+            </div>
+
+            <form [formGroup]="deliveryForm" class="settings-form">
+              <div class="form-group">
+                <label for="city">Ciudad de Cobertura</label>
+                <input type="text" id="city" formControlName="city" 
+                       placeholder="Montería, Córdoba">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="deliveryTime">Tiempo de Entrega</label>
+                  <input type="text" id="deliveryTime" formControlName="deliveryTime" 
+                         placeholder="30-60 minutos">
+                </div>
+                <div class="form-group">
+                  <label for="deliveryFee">Costo de Envío</label>
+                  <div class="input-with-prefix">
+                    <span class="prefix">$</span>
+                    <input type="number" id="deliveryFee" formControlName="deliveryFee" 
+                           placeholder="5000" min="0">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="freeDeliveryMinimum">Envío Gratis Desde</label>
+                  <div class="input-with-prefix">
+                    <span class="prefix">$</span>
+                    <input type="number" id="freeDeliveryMinimum" formControlName="freeDeliveryMinimum" 
+                           placeholder="50000" min="0">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="checkbox-group">
+                    <input type="checkbox" formControlName="availableNightDelivery">
+                    <span class="checkmark"></span>
+                    Entregas nocturnas disponibles
+                  </label>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Schedule Configuration -->
+          <div class="settings-section full-width">
+            <div class="section-header">
+              <h2>
+                <i class="bi bi-clock-history"></i>
+                Horarios de Atención
+              </h2>
+              <p>Configura los días y horarios de atención</p>
+            </div>
+
+            <form [formGroup]="scheduleForm" class="settings-form">
+              <div class="schedule-grid">
+                <div *ngFor="let day of weekDays; let i = index" class="schedule-day">
+                  <div class="day-header">
+                    <label class="checkbox-group">
+                      <input type="checkbox" [formControlName]="day.key + '_isOpen'">
+                      <span class="checkmark"></span>
+                      {{ day.label }}
+                    </label>
+                  </div>
+                  <div class="time-inputs" *ngIf="scheduleForm.get(day.key + '_isOpen')?.value">
+                    <input type="time" [formControlName]="day.key + '_open'" class="time-input">
+                    <span class="time-separator">-</span>
+                    <input type="time" [formControlName]="day.key + '_close'" class="time-input">
+                  </div>
+                  <div class="closed-indicator" *ngIf="!scheduleForm.get(day.key + '_isOpen')?.value">
+                    <span class="closed-text">Cerrado</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="schedule-actions">
+                <button type="button" class="btn-outline" (click)="setAllDays(true)">
+                  <i class="bi bi-check-all"></i>
+                  Abrir Todos los Días
+                </button>
+                <button type="button" class="btn-outline" (click)="setWeekdaysOnly()">
+                  <i class="bi bi-calendar-week"></i>
+                  Solo Días de Semana
+                </button>
+                <button type="button" class="btn-outline" (click)="setStandardHours()">
+                  <i class="bi bi-clock"></i>
+                  Horario Estándar (9 AM - 10 PM)
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Site Configuration -->
+          <div class="settings-section">
+            <div class="section-header">
+              <h2>
+                <i class="bi bi-palette-fill"></i>
+                Configuración del Sitio
+              </h2>
+              <p>Personaliza la información general del sitio</p>
+            </div>
+
+            <form [formGroup]="siteForm" class="settings-form">
+              <div class="form-group">
+                <label for="siteName">Nombre del Sitio</label>
+                <input type="text" id="siteName" formControlName="name" 
+                       placeholder="VAPLURE">
+              </div>
+
+              <div class="form-group">
+                <label for="slogan">Slogan</label>
+                <input type="text" id="slogan" formControlName="slogan" 
+                       placeholder="Vapor Premium & Exclusivo">
+              </div>
+
+              <div class="form-group">
+                <label for="description">Descripción</label>
+                <textarea id="description" formControlName="description" 
+                          placeholder="Productos premium seleccionados especialmente para ti"></textarea>
+              </div>
+
+              <div class="color-section">
+                <h4>Colores del Tema</h4>
+                <div class="color-grid">
+                  <div class="color-group">
+                    <label for="primaryColor">Color Primario</label>
+                    <div class="color-input-group">
+                      <input type="color" id="primaryColor" formControlName="primaryColor">
+                      <input type="text" formControlName="primaryColor" placeholder="#00ff88">
+                    </div>
+                  </div>
+                  <div class="color-group">
+                    <label for="secondaryColor">Color Secundario</label>
+                    <div class="color-input-group">
+                      <input type="color" id="secondaryColor" formControlName="secondaryColor">
+                      <input type="text" formControlName="secondaryColor" placeholder="#4c6ef5">
+                    </div>
+                  </div>
+                  <div class="color-group">
+                    <label for="accentColor">Color de Acento</label>
+                    <div class="color-input-group">
+                      <input type="color" id="accentColor" formControlName="accentColor">
+                      <input type="text" formControlName="accentColor" placeholder="#00d4ff">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Preview Section -->
+          <div class="settings-section">
+            <div class="section-header">
+              <h2>
+                <i class="bi bi-eye-fill"></i>
+                Vista Previa
+              </h2>
+              <p>Previsualiza como se verán los cambios</p>
+            </div>
+
+            <div class="preview-container">
+              <div class="contact-preview">
+                <h4>Información de Contacto:</h4>
+                <div class="preview-item">
+                  <i class="bi bi-whatsapp"></i>
+                  <span>WhatsApp: +57 {{ contactForm.get('whatsapp')?.value || '3207682417' }}</span>
+                </div>
+                <div class="preview-item">
+                  <i class="bi bi-envelope"></i>
+                  <span>Email: {{ contactForm.get('email')?.value || 'info@vaplure.com' }}</span>
+                </div>
+                <div class="preview-item">
+                  <i class="bi bi-geo-alt"></i>
+                  <span>{{ deliveryForm.get('city')?.value || 'Montería, Córdoba' }}</span>
+                </div>
+                <div class="preview-item">
+                  <i class="bi bi-clock"></i>
+                  <span>{{ getSchedulePreview() }}</span>
+                </div>
+              </div>
+
+              <div class="site-preview">
+                <h4>Configuración del Sitio:</h4>
+                <div class="preview-header" [style.color]="siteForm.get('primaryColor')?.value">
+                  <h3>{{ siteForm.get('name')?.value || 'VAPLURE' }}</h3>
+                  <p>{{ siteForm.get('slogan')?.value || 'Vapor Premium & Exclusivo' }}</p>
+                </div>
+                <p class="preview-description">
+                  {{ siteForm.get('description')?.value || 'Productos premium seleccionados especialmente para ti' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Changes Indicator -->
+      <div class="changes-indicator" *ngIf="hasChanges">
+        <div class="changes-content">
+          <i class="bi bi-exclamation-circle"></i>
+          <span>Tienes cambios sin guardar</span>
+          <div class="changes-actions">
+            <button class="btn-ghost" (click)="discardChanges()">Descartar</button>
+            <button class="btn-primary" (click)="saveAllSettings()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .admin-container {
+      min-height: 100vh;
+      background: var(--dark-bg);
+      color: var(--text-light);
+      padding-bottom: 6rem;
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+      background: var(--card-bg);
+      border-bottom: 2px solid var(--primary-color);
+      padding: 2rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    .page-header h1 {
+      color: var(--primary-color);
+      margin: 0 0 0.5rem 0;
+      font-size: 2.2rem;
+      font-weight: 600;
+    }
+
+    .page-header p {
+      color: var(--text-dim);
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+    }
+
+    .settings-section {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .settings-section.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .section-header {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .section-header h2 {
+      color: var(--primary-color);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-header p {
+      color: var(--text-dim);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .settings-form {
+      padding: 2rem;
+    }
+
+    /* FORM ELEMENTS */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.8rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 0.3rem;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    .error {
+      color: #ff4757;
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+    }
+
+    .input-with-prefix {
+      display: flex;
+      align-items: center;
+    }
+
+    .input-with-prefix .prefix {
+      background: var(--card-border);
+      color: var(--text-light);
+      padding: 0.8rem;
+      border: 2px solid var(--card-border);
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .input-with-prefix input {
+      border-radius: 0 8px 8px 0;
+      border-left: none;
+    }
+
+    .input-with-prefix input:focus + .prefix,
+    .input-with-prefix input:focus {
+      border-color: var(--primary-color);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    /* WHATSAPP PREVIEW */
+    .whatsapp-preview {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid var(--primary-color);
+      border-radius: 10px;
+    }
+
+    .whatsapp-preview h4 {
+      color: var(--primary-color);
+      margin: 0 0 0.8rem 0;
+      font-size: 0.9rem;
+    }
+
+    .whatsapp-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .whatsapp-link:hover {
+      text-decoration: underline;
+    }
+
+    /* SCHEDULE */
+    .schedule-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .schedule-day {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+
+    .day-header {
+      font-weight: 600;
+    }
+
+    .time-inputs {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .time-input {
+      width: 120px !important;
+      padding: 0.6rem !important;
+      font-size: 0.85rem !important;
+    }
+
+    .time-separator {
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .closed-indicator {
+      display: flex;
+      align-items: center;
+    }
+
+    .closed-text {
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+
+    .schedule-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* COLOR SECTION */
+    .color-section {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .color-section h4 {
+      color: var(--text-light);
+      margin: 0 0 1rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .color-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .color-group label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .color-input-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .color-input-group input[type="color"] {
+      width: 50px;
+      height: 40px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .color-input-group input[type="text"] {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
+    /* PREVIEW */
+    .preview-container {
+      padding: 2rem;
+    }
+
+    .contact-preview,
+    .site-preview {
+      margin-bottom: 2rem;
+    }
+
+    .contact-preview h4,
+    .site-preview h4 {
+      color: var(--primary-color);
+      margin: 0 0 1rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .preview-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .preview-item i {
+      width: 20px;
+      color: var(--primary-color);
+    }
+
+    .preview-header h3 {
+      font-family: 'Creepster', cursive;
+      font-size: 1.8rem;
+      margin: 0 0 0.3rem 0;
+    }
+
+    .preview-header p {
+      margin: 0 0 1rem 0;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .preview-description {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* BUTTONS */
+    .btn-primary,
+    .btn-secondary,
+    .btn-success,
+    .btn-outline,
+    .btn-ghost {
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      border: 2px solid;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: transparent;
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-dim);
+      border-color: var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--card-border);
+      color: var(--text-light);
+    }
+
+    .btn-success {
+      background: transparent;
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: var(--accent-color);
+      color: var(--dark-bg);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-light);
+      border-color: var(--card-border);
+      border-style: dashed;
+    }
+
+    .btn-outline:hover {
+      border-style: solid;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-light);
+      border-color: var(--card-border);
+    }
+
+    .btn-primary:disabled,
+    .btn-success:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* CHANGES INDICATOR */
+    .changes-indicator {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-bg);
+      border: 2px solid var(--primary-color);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      box-shadow: var(--shadow-glow);
+      z-index: 200;
+    }
+
+    .changes-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--text-light);
+    }
+
+    .changes-content i {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+
+    .changes-actions {
+      display: flex;
+      gap: 0.8rem;
+    }
+
+    .changes-actions .btn-ghost,
+    .changes-actions .btn-primary {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1200px) {
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .header-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .main-content {
+        padding: 1rem;
+      }
+
+      .settings-form {
+        padding: 1.5rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .schedule-day {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .schedule-actions {
+        flex-direction: column;
+      }
+
+      .color-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .changes-indicator {
+        left: 1rem;
+        right: 1rem;
+        transform: none;
+        padding: 1rem;
+      }
+
+      .changes-content {
+        flex-direction: column;
+        gap: 0.8rem;
+        text-align: center;
+      }
+
+      .changes-actions {
+        justify-content: center;
+      }
+    }
+  `]
+})
+export class SettingsManagementComponent implements OnInit, OnDestroy {
+  contactForm!: FormGroup;
+  deliveryForm!: FormGroup;
+  scheduleForm!: FormGroup;
+  siteForm!: FormGroup;
+  
+  hasChanges = false;
+  originalSettings: Settings | null = null;
+  
+  weekDays = [
+    { key: 'monday', label: 'Lunes' },
+    { key: 'tuesday', label: 'Martes' },
+    { key: 'wednesday', label: 'Miércoles' },
+    { key: 'thursday', label: 'Jueves' },
+    { key: 'friday', label: 'Viernes' },
+    { key: 'saturday', label: 'Sábado' },
+    { key: 'sunday', label: 'Domingo' }
+  ];
+  
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private dataService: DataService,
+    private authService: AuthService,
+    private fb: FormBuilder
+  ) {
+    this.initForms();
+  }
+
+  ngOnInit(): void {
+    this.loadSettings();
+    this.watchForChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initForms(): void {
+    // Contact Form
+    this.contactForm = this.fb.group({
+      whatsapp: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      email: ['', [Validators.email]]
+    });
+
+    // Delivery Form
+    this.deliveryForm = this.fb.group({
+      city: [''],
+      deliveryTime: [''],
+      deliveryFee: [0, [Validators.min(0)]],
+      freeDeliveryMinimum: [0, [Validators.min(0)]],
+      availableNightDelivery: [false]
+    });
+
+    // Schedule Form
+    const scheduleControls: any = {};
+    this.weekDays.forEach(day => {
+      scheduleControls[day.key + '_isOpen'] = [true];
+      scheduleControls[day.key + '_open'] = ['09:00'];
+      scheduleControls[day.key + '_close'] = ['22:00'];
+    });
+    this.scheduleForm = this.fb.group(scheduleControls);
+
+    // Site Form
+    this.siteForm = this.fb.group({
+      name: [''],
+      slogan: [''],
+      description: [''],
+      logo: [''],
+      primaryColor: ['#00ff88'],
+      secondaryColor: ['#4c6ef5'],
+      accentColor: ['#00d4ff']
+    });
+  }
+
+  private loadSettings(): void {
+    this.dataService.settings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((settings: any) => {
+        if (settings) {
+          this.originalSettings = JSON.parse(JSON.stringify(settings));
+          this.populateForms(settings);
+        }
+      });
+  }
+
+  private populateForms(settings: Settings): void {
+    // Populate contact form
+    this.contactForm.patchValue({
+      whatsapp: settings.contact.whatsapp,
+      email: settings.contact.email
+    });
+
+    // Populate delivery form
+    this.deliveryForm.patchValue({
+      city: settings.contact.deliveryInfo.city,
+      deliveryTime: settings.contact.deliveryInfo.deliveryTime,
+      deliveryFee: settings.contact.deliveryInfo.deliveryFee,
+      freeDeliveryMinimum: settings.contact.deliveryInfo.freeDeliveryMinimum,
+      availableNightDelivery: settings.contact.deliveryInfo.availableNightDelivery
+    });
+
+    // Populate schedule form
+    Object.keys(settings.contact.schedule).forEach(day => {
+      const schedule = settings.contact.schedule[day];
+      this.scheduleForm.patchValue({
+        [day + '_isOpen']: schedule.isOpen,
+        [day + '_open']: schedule.open,
+        [day + '_close']: schedule.close
+      });
+    });
+
+    // Populate site form
+    this.siteForm.patchValue({
+      name: settings.site.name,
+      slogan: settings.site.slogan,
+      description: settings.site.description,
+      logo: settings.site.logo,
+      primaryColor: settings.site.primaryColor,
+      secondaryColor: settings.site.secondaryColor,
+      accentColor: settings.site.accentColor
+    });
+  }
+
+  private watchForChanges(): void {
+    // Watch all forms for changes
+    [this.contactForm, this.deliveryForm, this.scheduleForm, this.siteForm].forEach(form => {
+      form.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.checkForChanges();
+        });
+    });
+  }
+
+  private checkForChanges(): void {
+    if (!this.originalSettings) return;
+
+    const currentSettings = this.buildSettingsFromForms();
+    this.hasChanges = JSON.stringify(currentSettings) !== JSON.stringify(this.originalSettings);
+  }
+
+  private buildSettingsFromForms(): Settings {
+    const contactValue = this.contactForm.value;
+    const deliveryValue = this.deliveryForm.value;
+    const scheduleValue = this.scheduleForm.value;
+    const siteValue = this.siteForm.value;
+
+    // Build schedule object
+    const schedule: any = {};
+    this.weekDays.forEach(day => {
+      schedule[day.key] = {
+        isOpen: scheduleValue[day.key + '_isOpen'],
+        open: scheduleValue[day.key + '_open'],
+        close: scheduleValue[day.key + '_close']
+      };
+    });
+
+    return {
+      contact: {
+        whatsapp: contactValue.whatsapp,
+        email: contactValue.email,
+        schedule,
+        deliveryInfo: {
+          city: deliveryValue.city,
+          deliveryTime: deliveryValue.deliveryTime,
+          deliveryFee: deliveryValue.deliveryFee,
+          freeDeliveryMinimum: deliveryValue.freeDeliveryMinimum,
+          availableNightDelivery: deliveryValue.availableNightDelivery
+        }
+      },
+      site: {
+        name: siteValue.name,
+        slogan: siteValue.slogan,
+        description: siteValue.description,
+        logo: siteValue.logo,
+        primaryColor: siteValue.primaryColor,
+        secondaryColor: siteValue.secondaryColor,
+        accentColor: siteValue.accentColor
+      }
+    };
+  }
+
+  saveAllSettings(): void {
+    if (!this.hasChanges || this.hasFormErrors()) return;
+
+    const newSettings = this.buildSettingsFromForms();
+    this.dataService.updateSettings(newSettings);
+    this.originalSettings = JSON.parse(JSON.stringify(newSettings));
+    this.hasChanges = false;
+
+    // Show success message (you can implement a toast service)
+    console.log('Configuración guardada exitosamente');
+  }
+
+  private hasFormErrors(): boolean {
+    return this.contactForm.invalid || 
+           this.deliveryForm.invalid || 
+           this.scheduleForm.invalid || 
+           this.siteForm.invalid;
+  }
+
+  discardChanges(): void {
+    if (this.originalSettings) {
+      this.populateForms(this.originalSettings);
+      this.hasChanges = false;
+    }
+  }
+
+  resetToDefaults(): void {
+    const defaultSettings: Settings = {
+      contact: {
+        whatsapp: '3207682417',
+        email: 'info@vaplure.com',
+        schedule: {
+          monday: { open: '09:00', close: '22:00', isOpen: true },
+          tuesday: { open: '09:00', close: '22:00', isOpen: true },
+          wednesday: { open: '09:00', close: '22:00', isOpen: true },
+          thursday: { open: '09:00', close: '22:00', isOpen: true },
+          friday: { open: '09:00', close: '22:00', isOpen: true },
+          saturday: { open: '09:00', close: '22:00', isOpen: true },
+          sunday: { open: '09:00', close: '22:00', isOpen: true }
+        },
+        deliveryInfo: {
+          city: 'Montería, Córdoba',
+          deliveryTime: '30-60 minutos',
+          deliveryFee: 5000,
+          freeDeliveryMinimum: 50000,
+          availableNightDelivery: true
+        }
+      },
+      site: {
+        name: 'VAPLURE',
+        slogan: 'Vapor Premium & Exclusivo',
+        description: 'Productos premium seleccionados especialmente para ti',
+        logo: 'assets/images/logo.png',
+        primaryColor: '#00ff88',
+        secondaryColor: '#4c6ef5',
+        accentColor: '#00d4ff'
+      }
+    };
+
+    this.populateForms(defaultSettings);
+  }
+
+  // Schedule helper methods
+  setAllDays(isOpen: boolean): void {
+    const updates: any = {};
+    this.weekDays.forEach(day => {
+      updates[day.key + '_isOpen'] = isOpen;
+      if (isOpen) {
+        updates[day.key + '_open'] = '09:00';
+        updates[day.key + '_close'] = '22:00';
+      }
+    });
+    this.scheduleForm.patchValue(updates);
+  }
+
+  setWeekdaysOnly(): void {
+    const updates: any = {};
+    this.weekDays.forEach((day, index) => {
+      const isWeekday = index < 5; // Monday to Friday
+      updates[day.key + '_isOpen'] = isWeekday;
+      if (isWeekday) {
+        updates[day.key + '_open'] = '09:00';
+        updates[day.key + '_close'] = '22:00';
+      }
+    });
+    this.scheduleForm.patchValue(updates);
+  }
+
+  setStandardHours(): void {
+    const updates: any = {};
+    this.weekDays.forEach(day => {
+      if (this.scheduleForm.get(day.key + '_isOpen')?.value) {
+        updates[day.key + '_open'] = '09:00';
+        updates[day.key + '_close'] = '22:00';
+      }
+    });
+    this.scheduleForm.patchValue(updates);
+  }
+
+  getWhatsAppUrl(): string {
+    const whatsapp = this.contactForm.get('whatsapp')?.value;
+    if (!whatsapp) return '#';
+    return `https://wa.me/57${whatsapp}`;
+  }
+
+  getSchedulePreview(): string {
+    const openDays = this.weekDays.filter(day => 
+      this.scheduleForm.get(day.key + '_isOpen')?.value
+    );
+
+    if (openDays.length === 0) return 'Cerrado todos los días';
+    if (openDays.length === 7) {
+      const firstOpen = this.scheduleForm.get('monday_open')?.value;
+      const firstClose = this.scheduleForm.get('monday_close')?.value;
+      return `Todos los días ${firstOpen} - ${firstClose}`;
+    }
+
+    const firstDay = openDays[0];
+    const open = this.scheduleForm.get(firstDay.key + '_open')?.value;
+    const close = this.scheduleForm.get(firstDay.key + '_close')?.value;
+    return `${openDays.length} días - ${open} a ${close}`;
+  }
+}
+
+# === component\modules\cart\cart.component.html ===
+
+<div class="cart" #cartElement [class.open]="isOpen" id="cart">
+    <div class="cart-header">
+        <h3>
+            <i class="bi bi-bag-fill"></i>
+            Mi Carrito
+        </h3>
+        <button class="cart-close" (click)="closeCart()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="cart-items" id="cart-items">
+        <div *ngIf="(cartItems$ | async)?.length === 0; else itemsList"
+            style="text-align: center; color: var(--text-dim); padding: 2rem;">
+            <i class="bi bi-cart-x" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+            <p>Tu carrito está vacío</p>
+        </div>
+
+        <ng-template #itemsList>
+            <div *ngFor="let item of cartItems$ | async; trackBy: trackByItemId" class="cart-item">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">
+                        <i [class]="item.image"></i>
+                        {{ item.name }}
+                    </div>
+                    <div class="cart-item-details">
+                        <i class="bi bi-box-seam"></i>
+                        Cantidad: {{ item.quantity }} |
+                        <i class="bi bi-currency-dollar"></i>
+                        {{ item.finalPrice | number:'1.0-0' }} c/u
+                    </div>
+                </div>
+                <div class="cart-item-actions">
+                    <div class="cart-item-price">
+                        ${{ getItemTotal(item) | number:'1.0-0' }}
+                    </div>
+                    <button class="cart-remove" (click)="removeFromCart(item.id)" title="Eliminar">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+
+    <div class="cart-total" id="cart-total">
+        <i class="bi bi-calculator"></i>
+        Total: ${{ cartTotal$ | async | number:'1.0-0' }}
+    </div>
+
+    <button class="cart-checkout" (click)="checkout()">
+        <i class="bi bi-whatsapp"></i>
+        Realizar Pedido
+    </button>
+</div>
+
+# === component\modules\cart\cart.component.ts ===
+
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { CartService } from '../../../service/cart.service'; // Ajusta la ruta según tu estructura
+import { CartItem } from '../../../models/product.model'; // Ajusta la ruta según tu estructura
+import { Observable } from 'rxjs';
+
+@Component({
+  selector: 'app-cart',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './cart.component.html',
+  styles: [`
+    .cart {
+      position: fixed;
+      top: 120px;
+      right: -400px;
+      width: 380px;
+      max-height: calc(100vh - 140px);
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.5rem;
+      transition: right 0.4s ease;
+      z-index: 999;
+      border: 2px solid var(--primary-color);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(10px);
+    }
+
+    .cart.open {
+      right: 20px;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .cart-header h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      font-size: 1.3rem;
+      margin: 0;
+    }
+
+    .cart-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      padding: 0.2rem;
+    }
+
+    .cart-close:hover {
+      color: var(--text-light);
+    }
+
+    .cart-items {
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 1rem 0;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cart-item-details {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .cart-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cart-item-price {
+      font-weight: 700;
+      color: var(--accent-color);
+      font-size: 0.9rem;
+    }
+
+    .cart-remove {
+      background: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .cart-remove:hover {
+      background: #ff4757;
+      transform: scale(1.05);
+    }
+
+    .cart-total {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      text-align: center;
+      margin: 1rem 0;
+      padding: 0.8rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .cart-checkout {
+      width: 100%;
+      padding: 1rem;
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    .cart-checkout:hover {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    /* Scrollbar personalizado para los items del carrito */
+    .cart-items::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .cart-items::-webkit-scrollbar-track {
+      background: var(--card-border);
+      border-radius: 3px;
+    }
+
+    .cart-items::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 3px;
+    }
+
+    @media (max-width: 768px) {
+      .cart {
+        width: 95%;
+        right: -95%;
+        top: 100px;
+        max-height: calc(100vh - 120px);
+      }
+
+      .cart.open {
+        right: 2.5%;
+      }
+    }
+  `]
+})
+export class CartComponent implements OnInit {
+  @ViewChild('cartElement') cartElement!: ElementRef;
+  
+  cartItems$: Observable<CartItem[]>;
+  cartTotal$: Observable<number>;
+  isOpen = false;
+
+  constructor(private cartService: CartService) {
+    this.cartItems$ = this.cartService.cart$;
+    this.cartTotal$ = this.cartService.cartTotal$;
+  }
+
+  ngOnInit(): void {}
+
+  // Método para abrir el carrito
+  openCart(): void {
+    this.isOpen = true;
+  }
+
+  // Método para cerrar el carrito
+  closeCart(): void {
+    this.isOpen = false;
+  }
+
+  // Método para alternar el estado del carrito
+  toggleCart(): void {
+    this.isOpen = !this.isOpen;
+  }
+
+  // Método para remover un item del carrito
+  removeFromCart(productId: number): void {
+    this.cartService.removeFromCart(productId);
+  }
+
+  // Calcular el total de un item
+  getItemTotal(item: CartItem): number {
+    return item.finalPrice * item.quantity;
+  }
+
+  // Proceder al checkout
+  checkout(): void {
+    const cartItems = this.cartService.getCartItems();
+    if (cartItems.length === 0) {
+      alert('Tu carrito está vacío');
+      return;
+    }
+
+    const message = this.cartService.generateWhatsAppMessage();
+    const whatsappUrl = `https://wa.me/573001234567?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  // TrackBy function para optimizar el renderizado
+  trackByItemId(index: number, item: CartItem): number {
+    return item.id;
+  }
+}
+
+# === component\modules\cart\cart-toggle\cart-toggle.component.ts ===
+
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { CartService } from '../../../../service/cart.service'; // Ajusta la ruta según tu estructura
+import { Observable } from 'rxjs';
+
+@Component({
+  selector: 'app-cart-toggle',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <button class="cart-toggle" (click)="onToggleCart()">
+      <i class="bi bi-cart-fill"></i>
+      <span class="cart-badge" *ngIf="(cartItemCount$ | async)! > 0">
+        {{ cartItemCount$ | async }}
+      </span>
+    </button>
+  `,
+  styles: [`
+    .cart-toggle {
+      position: fixed;
+      top: 120px;
+      right: 20px;
+      background: rgba(26, 26, 26, 0.9);
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      padding: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      z-index: 998;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .cart-toggle:hover {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+      transform: scale(1.05);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--secondary-color);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 2px solid var(--dark-bg);
+    }
+
+    @media (max-width: 768px) {
+      .cart-toggle {
+        top: 100px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .cart-badge {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+        top: -6px;
+        right: -6px;
+      }
+    }
+  `]
+})
+export class CartToggleComponent implements OnInit {
+  @Output() cartToggle = new EventEmitter<void>();
+  
+  cartItemCount$: Observable<number>;
+
+  constructor(private cartService: CartService) {
+    this.cartItemCount$ = this.cartService.cartItemCount$;
+  }
+
+  ngOnInit(): void {}
+
+  onToggleCart(): void {
+    this.cartToggle.emit();
+  }
+}
+
+# === component\modules\catalogo\catalog.component.html ===
+
+
+
+# === component\modules\catalogo\catalog.component.scss ===
+
+
+
+# === component\modules\catalogo\catalog.component.ts ===
+
+// src/app/modules/catalogo/catalog.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
+
+// Componentes
+import { ProductCardComponent } from './product-card/product-card.component';
+import { FilterButtonsComponent } from './filter-buttons/filter-buttons.component';
+
+// Servicios y modelos
+import { ProductService } from '../../../service/product.service';
+import { CartService } from '../../../service/cart.service';
+import { Product } from '../../../models/product.model';
+
+@Component({
+  selector: 'app-catalog',
+  standalone: true,
+  imports: [CommonModule, ProductCardComponent, FilterButtonsComponent],
+  template: `
+    <section id="catalogo">
+      <div class="section-title" data-aos="fade-down">
+        Nuestro Catálogo
+      </div>
+      <div class="section-subtitle" data-aos="fade-up">
+        Productos premium seleccionados especialmente para ti
+      </div>
+      
+      <!-- Filtros de productos -->
+      <app-filter-buttons 
+        (filterChange)="onFilterChange($event)"
+        data-aos="fade-up" 
+        data-aos-delay="200">
+      </app-filter-buttons>
+      
+      <!-- Estadísticas del catálogo -->
+      <div class="catalog-stats" *ngIf="!isLoading" data-aos="fade-up" data-aos-delay="300">
+        <span class="stat-item">
+          <i class="bi bi-box-seam"></i>
+          {{ filteredProducts.length }} productos
+        </span>
+        <span class="stat-item" *ngIf="currentFilter !== 'all'">
+          <i class="bi bi-funnel"></i>
+          Categoría: {{ getCategoryName(currentFilter) }}
+        </span>
+        <span class="stat-item" *ngIf="hasDiscountedProducts()">
+          <i class="bi bi-percent"></i>
+          Con descuentos disponibles
+        </span>
+      </div>
+      
+      <!-- Grid de productos -->
+      <div class="catalog-grid" id="product-grid">
+        <!-- Loading state -->
+        <div *ngIf="isLoading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando productos...</p>
+        </div>
+        
+        <!-- Empty state -->
+        <div *ngIf="!isLoading && filteredProducts.length === 0" class="empty-state">
+          <i class="bi bi-search" style="font-size: 4rem; color: var(--text-dim); margin-bottom: 1rem;"></i>
+          <h3>No se encontraron productos</h3>
+          <p>No hay productos en esta categoría</p>
+          <button class="btn-secondary" (click)="resetFilter()">
+            <i class="bi bi-arrow-clockwise"></i>
+            Ver todos los productos
+          </button>
+        </div>
+        
+        <!-- Products grid -->
+        <app-product-card 
+          *ngFor="let product of filteredProducts; trackBy: trackByProductId; let i = index"
+          [product]="product"
+          [index]="i"
+          (addToCart)="onAddToCart($event)"
+          data-aos="fade-up" 
+          [attr.data-aos-delay]="(i * 100).toString()">
+        </app-product-card>
+      </div>
+
+      <!-- Refresh button -->
+      <div class="catalog-actions" *ngIf="!isLoading" data-aos="fade-up">
+        <button class="refresh-btn" (click)="refreshCatalog()" [disabled]="isRefreshing">
+          <i class="bi" [class.bi-arrow-clockwise]="!isRefreshing" [class.bi-hourglass-split]="isRefreshing"></i>
+          {{ isRefreshing ? 'Actualizando...' : 'Actualizar catálogo' }}
+        </button>
+      </div>
+    </section>
+  `,
+  styles: [`
+    section {
+      margin: 6rem 0;
+      padding: 2rem 0;
+    }
+
+    .section-title {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      margin-bottom: 4rem;
+      font-weight: 300;
+    }
+
+    .catalog-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 20px;
+    }
+
+    .stat-item i {
+      color: var(--primary-color);
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .loading {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-dim);
+    }
+
+    .spinner {
+      border: 3px solid var(--card-border);
+      border-top: 3px solid var(--primary-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-dim);
+    }
+
+    .empty-state h3 {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      margin-bottom: 2rem;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--secondary-color);
+      border: 2px solid var(--secondary-color);
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-color);
+      color: var(--dark-bg);
+    }
+
+    .catalog-actions {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    .refresh-btn {
+      background: transparent;
+      color: var(--accent-color);
+      border: 2px solid var(--accent-color);
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    .refresh-btn:hover:not(:disabled) {
+      background: var(--accent-color);
+      color: var(--dark-bg);
+    }
+
+    .refresh-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .refresh-btn i {
+      animation: spin 1s linear infinite;
+    }
+
+    .refresh-btn:not(:disabled) .bi-arrow-clockwise {
+      animation: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .catalog-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .catalog-stats {
+        gap: 1rem;
+      }
+
+      .stat-item {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+      }
+    }
+  `]
+})
+export class CatalogComponent implements OnInit, OnDestroy {
+  filteredProducts: Product[] = [];
+  currentFilter = 'all';
+  isLoading = false;
+  isRefreshing = false;
+  
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadInitialProducts();
+    this.subscribeToProductChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadInitialProducts(): void {
+    this.isLoading = true;
+    
+    // Simular carga inicial
+    setTimeout(() => {
+      this.filteredProducts = this.productService.getAllProducts();
+      this.currentFilter = this.productService.getCurrentFilter();
+      this.isLoading = false;
+    }, 500);
+  }
+
+  private subscribeToProductChanges(): void {
+    this.productService.filteredProducts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(products => {
+        this.filteredProducts = products;
+        this.currentFilter = this.productService.getCurrentFilter();
+      });
+  }
+
+  onFilterChange(category: string): void {
+    if (this.currentFilter === category) return;
+    
+    this.isLoading = true;
+    this.currentFilter = category;
+    
+    setTimeout(() => {
+      this.productService.filterProducts(category);
+      this.isLoading = false;
+    }, 300);
+  }
+
+  onAddToCart(event: { product: Product, quantity: number }): void {
+    this.cartService.addToCart(event.product, event.quantity);
+    
+    // Mostrar notificación temporal (opcional)
+    this.showAddToCartNotification(event.product.name);
+  }
+
+  refreshCatalog(): void {
+    this.isRefreshing = true;
+    
+    this.productService.refreshProducts()
+      .pipe(
+        finalize(() => this.isRefreshing = false),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+  }
+
+  resetFilter(): void {
+    this.onFilterChange('all');
+  }
+
+  trackByProductId(index: number, product: Product): number {
+    return product.id;
+  }
+
+  getCategoryName(category: string): string {
+    const categoryNames: Record<string, string> = {
+      'all': 'Todos',
+      'desechable': 'Desechables',
+      'pod': 'Pod Systems',
+      'liquid': 'E-Liquids',
+      'mod': 'Mods',
+      'kit': 'Kits',
+      'recargable': 'Recargables'
+    };
+    return categoryNames[category] || category;
+  }
+
+  hasDiscountedProducts(): boolean {
+    return this.filteredProducts.some(product => product.discount > 0);
+  }
+
+  private showAddToCartNotification(productName: string): void {
+    // Implementar notificación temporal (opcional)
+    console.log(`${productName} agregado al carrito`);
+  }
+}
+
+# === component\modules\catalogo\filter-buttons\filter-buttons.component.ts ===
+
+// src/app/components/catalog/filter-buttons/filter-buttons.component.ts
+import { Component, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+interface FilterOption {
+  value: string;
+  label: string;
+  icon: string;
+}
+
+@Component({
+  selector: 'app-filter-buttons',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="catalog-controls">
+      <button 
+        *ngFor="let filter of filterOptions"
+        class="filter-btn"
+        [class.active]="activeFilter === filter.value"
+        (click)="onFilterClick(filter.value)">
+        <i [class]="filter.icon"></i>
+        {{ filter.label }}
+      </button>
+    </div>
+  `,
+  styles: [`
+    .catalog-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.8rem 1.5rem;
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+      border-color: var(--primary-color);
+    }
+  `]
+})
+export class FilterButtonsComponent {
+  @Output() filterChange = new EventEmitter<string>();
+
+  activeFilter = 'all';
+
+  filterOptions: FilterOption[] = [
+    { value: 'all', label: 'Todos', icon: 'bi bi-grid-fill' },
+    { value: 'desechable', label: 'Desechables', icon: 'bi bi-trash3-fill' },
+    { value: 'pod', label: 'Pod Systems', icon: 'bi bi-battery-charging' },
+    { value: 'liquid', label: 'E-Liquids', icon: 'bi bi-droplet-fill' },
+    { value: 'mod', label: 'Mods', icon: 'bi bi-cpu-fill' },
+    { value: 'kit', label: 'Kits', icon: 'bi bi-gift-fill' }
+  ];
+
+  onFilterClick(category: string): void {
+    this.activeFilter = category;
+    this.filterChange.emit(category);
+  }
+}
+
+# === component\modules\catalogo\product-card\product-card.component.ts ===
+
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Product } from '../../../../models/product.model';
+
+@Component({
+  selector: 'app-product-card',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="product-card">
+      <div class="product-image">
+        <!-- Imagen real del producto -->
+        <img 
+          [src]="product.image" 
+          [alt]="product.imageAlt || product.name"
+          (error)="onImageError($event)"
+          (load)="onImageLoad($event)"
+          [class.loaded]="imageLoaded"
+          [class.error]="imageError">
+        
+        <!-- Fallback icon si la imagen falla -->
+        <i 
+          *ngIf="imageError" 
+          class="bi bi-image" 
+          style="font-size: 4rem; color: var(--text-dim);">
+        </i>
+        
+        <!-- Loading spinner -->
+        <div *ngIf="!imageLoaded && !imageError" class="image-loading">
+          <div class="spinner-small"></div>
+        </div>
+      </div>
+      
+      <div class="product-info">
+        <h3>
+          <i class="bi bi-star-fill"></i>
+          {{ product.name }}
+        </h3>
+        <p class="product-description">{{ product.description }}</p>
+        
+        <div class="product-features">
+          <span 
+            *ngFor="let feature of product.features" 
+            class="feature-badge">
+            <i class="bi bi-check-circle-fill"></i>
+            {{ feature }}
+          </span>
+        </div>
+        
+        <div class="flavors">
+          <div class="flavors-label">
+            <i class="bi bi-palette-fill"></i>
+            Sabores disponibles:
+          </div>
+          <div class="flavors-grid">
+            <span 
+              *ngFor="let flavor of product.flavors" 
+              class="flavor-tag">
+              {{ flavor }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="price-section">
+          <div class="price-info">
+            <div class="price">
+              <i class="bi bi-currency-dollar"></i>
+              {{ getDiscountedPrice() | number:'1.0-0' }}
+            </div>
+            <div 
+              *ngIf="product.discount > 0" 
+              class="original-price">
+              {{ product.price | number:'1.0-0' }}
+            </div>
+          </div>
+          <div 
+            *ngIf="product.discount > 0" 
+            class="discount">
+            <i class="bi bi-percent"></i>
+            -{{ product.discount }}%
+          </div>
+        </div>
+        
+        <div class="quantity-selector">
+          <button 
+            class="quantity-btn" 
+            (click)="changeQuantity(-1)"
+            [disabled]="quantity <= 1">
+            <i class="bi bi-dash"></i>
+          </button>
+          <div class="quantity-display">{{ quantity }}</div>
+          <button 
+            class="quantity-btn" 
+            (click)="changeQuantity(1)"
+            [disabled]="quantity >= 99">
+            <i class="bi bi-plus"></i>
+          </button>
+        </div>
+        
+        <button 
+          class="add-to-cart" 
+          [class.btn-success]="showSuccessAnimation"
+          (click)="onAddToCart()">
+          <i [class]="buttonIcon"></i>
+          {{ buttonText }}
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .product-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 2px solid var(--card-border);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: 20px;
+      z-index: -1;
+    }
+
+    .product-card:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-10px) rotateX(5deg);
+      box-shadow:
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(0, 255, 136, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .product-card:hover::before {
+      opacity: 0.05;
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px; /* Aumentado para imágenes */
+      background: var(--gradient-purple);
+      border-radius: 15px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Ajustar imagen manteniendo proporción */
+      border-radius: 15px;
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+
+    .product-image img.loaded {
+      opacity: 1;
+    }
+
+    .product-image img.error {
+      display: none;
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+
+    .image-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .spinner-small {
+      border: 2px solid var(--card-border);
+      border-top: 2px solid var(--primary-color);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Resto de estilos iguales... */
+    .product-info h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.8rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .product-description {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    .product-features {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .feature-badge {
+      background: rgba(76, 110, 245, 0.2);
+      color: var(--secondary-color);
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      border: 1px solid var(--secondary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .flavors {
+      margin: 1rem 0;
+    }
+
+    .flavors-label {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .flavors-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .flavor-tag {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--primary-color);
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      font-weight: 400;
+      transition: all 0.3s ease;
+    }
+
+    .flavor-tag:hover {
+      background: rgba(0, 255, 136, 0.25);
+      transform: scale(1.05);
+    }
+
+    .price-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .price-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .original-price {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .discount {
+      background: var(--secondary-color);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      padding: 0.8rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .quantity-btn {
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      width: 35px;
+      height: 35px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantity-btn:hover:not(:disabled) {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    .quantity-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .quantity-display {
+      background: var(--card-bg);
+      border: 2px solid var(--primary-color);
+      color: var(--text-light);
+      padding: 0.6rem 1.2rem;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 60px;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .add-to-cart {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    .add-to-cart:hover {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    .btn-success {
+      background: var(--primary-color) !important;
+      color: var(--dark-bg) !important;
+      animation: pulse 1s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+  `]
+})
+export class ProductCardComponent implements OnInit {
+  @Input() product!: Product;
+  @Input() index: number = 0;
+  @Output() addToCart = new EventEmitter<{ product: Product, quantity: number }>();
+
+  quantity = 1;
+  showSuccessAnimation = false;
+  buttonText = 'Agregar al Carrito';
+  buttonIcon = 'bi bi-cart-plus-fill';
+  imageLoaded = false;
+  imageError = false;
+
+  ngOnInit(): void {}
+
+  getDiscountedPrice(): number {
+    return this.product.price * (1 - this.product.discount / 100);
+  }
+
+  changeQuantity(change: number): void {
+    const newQuantity = this.quantity + change;
+    if (newQuantity >= 1 && newQuantity <= 99) {
+      this.quantity = newQuantity;
+    }
+  }
+
+  onAddToCart(): void {
+    this.addToCart.emit({ product: this.product, quantity: this.quantity });
+    
+    // Mostrar animación de éxito
+    this.showSuccessAnimation = true;
+    this.buttonText = '¡Agregado!';
+    this.buttonIcon = 'bi bi-check-circle-fill';
+
+    setTimeout(() => {
+      this.showSuccessAnimation = false;
+      this.buttonText = 'Agregar al Carrito';
+      this.buttonIcon = 'bi bi-cart-plus-fill';
+    }, 1500);
+  }
+
+  onImageLoad(event: any): void {
+    this.imageLoaded = true;
+    this.imageError = false;
+  }
+
+  onImageError(event: any): void {
+    this.imageError = true;
+    this.imageLoaded = false;
+    console.error('Error loading image:', this.product.image);
+  }
+}
+
+# === component\modules\contact\contact.component.ts ===
+
+// 3. ACTUALIZAR contact.component.ts para usar configuración dinámica
+
+// src/app/modules/contact/contact.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
+import { DataService, Settings } from '../../../service/data.service';
+
+@Component({
+  selector: 'app-contact',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <section id="contacto">
+      <div class="section-title" data-aos="fade-down">Contacto & Entregas</div>
+      <div class="section-subtitle" data-aos="fade-up">
+        Servicio premium a domicilio en {{ settings?.contact?.deliveryInfo?.city || 'Montería' }}
+      </div>
+      
+      <div class="contact-container">
+        <div class="contact-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="contact-icon">
+            <i class="bi bi-whatsapp"></i>
+          </div>
+          <h3>WhatsApp</h3>
+          <p>Realiza tu pedido directamente</p>
+          <a 
+            [href]="getWhatsAppUrl()" 
+            class="contact-button" 
+            target="_blank"
+            rel="noopener noreferrer">
+            <i class="bi bi-chat-dots-fill"></i>
+            Chatear Ahora
+          </a>
+        </div>
+
+        <div class="contact-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="contact-icon">
+            <i class="bi bi-truck"></i>
+          </div>
+          <h3>Entregas Rápidas</h3>
+          <div class="delivery-zone">
+            <h4>
+              <i class="bi bi-geo-alt-fill"></i> 
+              Zona de Cobertura
+            </h4>
+            <p><strong>{{ settings?.contact?.deliveryInfo?.city || 'Montería, Córdoba' }}</strong></p>
+            <div class="delivery-features">
+              <div class="delivery-feature">
+                <i class="bi bi-clock-fill"></i>
+                {{ settings?.contact?.deliveryInfo?.deliveryTime || '30-60 minutos' }}
+              </div>
+              <div class="delivery-feature">
+                <i class="bi bi-shield-check"></i>
+                Envío seguro
+              </div>
+              <div class="delivery-feature">
+                <i class="bi bi-credit-card-fill"></i>
+                Pago contraentrega
+              </div>
+              <div class="delivery-feature" *ngIf="settings?.contact?.deliveryInfo?.availableNightDelivery">
+                <i class="bi bi-moon-stars"></i>
+                Entregas nocturnas
+              </div>
+              <div class="delivery-feature">
+                <i class="bi bi-telephone-fill"></i>
+                Soporte 24/7
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-card" data-aos="fade-up" data-aos-delay="300">
+          <div class="contact-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <h3>Horarios</h3>
+          <div style="text-align: left; margin-top: 1rem;">
+            <div class="schedule-list">
+              <div *ngFor="let day of getScheduleDisplay()" class="schedule-item">
+                <div class="day-name">{{ day.name }}:</div>
+                <div class="day-hours" [class.closed]="!day.isOpen">
+                  {{ day.isOpen ? day.hours : 'Cerrado' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <a 
+            [href]="getEmailUrl()" 
+            class="contact-button">
+            <i class="bi bi-envelope-fill"></i>
+            Enviar Email
+          </a>
+        </div>
+      </div>
+    </section>
+  `,
+  styles: [`
+    /* Todos los estilos anteriores se mantienen igual */
+    section {
+      margin: 6rem 0;
+      padding: 2rem 0;
+    }
+
+    .section-title {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      margin-bottom: 4rem;
+      font-weight: 300;
+    }
+
+    .contact-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .contact-card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 20px;
+      border: 2px solid var(--card-border);
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-card:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .contact-icon {
+      font-size: 3rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .contact-card h3 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .contact-card p {
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    .delivery-zone {
+      background: rgba(0, 255, 136, 0.1);
+      border: 2px solid var(--primary-color);
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin: 1.5rem 0;
+    }
+
+    .delivery-zone h4 {
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .delivery-zone p {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .delivery-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .delivery-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    .delivery-feature i {
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .schedule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.3rem 0;
+    }
+
+    .day-name {
+      font-weight: 500;
+      color: var(--text-light);
+      min-width: 80px;
+    }
+
+    .day-hours {
+      color: var(--primary-color);
+      font-size: 0.9rem;
+    }
+
+    .day-hours.closed {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .contact-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      background: transparent;
+      color: var(--primary-color);
+      text-decoration: none;
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+
+    .contact-button:hover {
+      background: var(--primary-color);
+      color: var(--dark-bg);
+    }
+
+    @media (max-width: 768px) {
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  `]
+})
+export class ContactComponent implements OnInit, OnDestroy {
+  settings: Settings | null = null;
+  private destroy$ = new Subject<void>();
+
+  constructor(private dataService: DataService) {}
+
+  ngOnInit(): void {
+    this.dataService.settings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        this.settings = settings;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  getWhatsAppUrl(): string {
+    const whatsapp = this.settings?.contact.whatsapp || '3207682417';
+    return `https://wa.me/57${whatsapp}`;
+  }
+
+  getEmailUrl(): string {
+    const email = this.settings?.contact.email || 'info@vaplure.com';
+    return `mailto:${email}`;
+  }
+
+  getScheduleDisplay(): Array<{ name: string, hours: string, isOpen: boolean }> {
+    if (!this.settings) {
+      return this.getDefaultSchedule();
+    }
+
+    const schedule = this.settings.contact.schedule;
+    const dayNames: Record<string, string> = {
+      'monday': 'Lunes',
+      'tuesday': 'Martes',
+      'wednesday': 'Miércoles',
+      'thursday': 'Jueves',
+      'friday': 'Viernes',
+      'saturday': 'Sábado',
+      'sunday': 'Domingo'
+    };
+
+    return Object.keys(dayNames).map(key => {
+      const daySchedule = schedule[key];
+      return {
+        name: dayNames[key],
+        hours: daySchedule.isOpen ? `${daySchedule.open} - ${daySchedule.close}` : 'Cerrado',
+        isOpen: daySchedule.isOpen
+      };
+    });
+  }
+
+  private getDefaultSchedule(): Array<{ name: string, hours: string, isOpen: boolean }> {
+    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    return days.map(day => ({
+      name: day,
+      hours: '09:00 - 22:00',
+      isOpen: true
+    }));
+  }
+}
+
+# === component\particles\particles.component.ts ===
+
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-particles',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="particles-container">
+      <div class="particle" *ngFor="let particle of particles; let i = index"
+           [style.left.%]="particle.x"
+           [style.top.%]="particle.y"
+           [style.animation-delay.s]="particle.delay"
+           [style.animation-duration.s]="particle.duration">
+      </div>
+    </div>
+  `,
+  styles: [`
+    .particles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: floatParticle linear infinite;
+    }
+
+    @keyframes floatParticle {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.3;
+      }
+      90% {
+        opacity: 0.3;
+      }
+      100% {
+        transform: translateY(-10px) translateX(20px);
+        opacity: 0;
+      }
+    }
+
+    .particle:nth-child(odd) {
+      background: var(--secondary-color);
+    }
+
+    .particle:nth-child(3n) {
+      background: var(--accent-color);
+      width: 1px;
+      height: 1px;
+    }
+  `]
+})
+export class ParticlesComponent {
+  particles: Array<{x: number, y: number, delay: number, duration: number}> = [];
+
+  constructor() {
+    this.generateParticles();
+  }
+
+  private generateParticles(): void {
+    for (let i = 0; i < 50; i++) {
+      this.particles.push({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        delay: Math.random() * 10,
+        duration: 8 + Math.random() * 4
+      });
+    }
+  }
+}
+
+# === component\view\view.component.html ===
+
+<!-- Particles Background CSS -->
+<app-particles></app-particles>
+
+<!-- Header -->
+<app-header></app-header>
+
+<!-- Hero Section -->
+<app-hero *ngIf="currentSection === 'inicio'"></app-hero>
+
+<!-- Main Content Container -->
+<div class="content-wrapper" *ngIf="currentSection !== 'inicio'">
+    <main>
+        <!-- Catálogo Section -->
+        <app-catalog *ngIf="currentSection === 'catalogo'"></app-catalog>
+
+        <!-- Contacto Section -->
+        <app-contact *ngIf="currentSection === 'contacto'"></app-contact>
+    </main>
+</div>
+
+<!-- Shopping Cart -->
+<app-cart #cartComponent></app-cart>
+
+<!-- Cart Toggle Button -->
+<app-cart-toggle (click)="toggleCart()"></app-cart-toggle>
+
+# === component\view\view.component.scss ===
+
+:host {
+    display: block;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 80px);
+    padding-top: 80px; /* Espacio para el header fijo */
+    width: 100%;
+    max-width: 100vw;
+}
+
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 120px);
+}
+
+/* Asegurar que el carrito esté visible por encima de todo */
+::ng-deep app-cart .cart {
+    position: fixed !important;
+    top: 120px !important;
+    right: -400px !important;
+    width: 380px !important;
+    max-height: calc(100vh - 140px) !important;
+    z-index: 999 !important;
+    transition: right 0.4s ease !important;
+}
+
+::ng-deep app-cart .cart.open {
+    right: 20px !important;
+}
+
+/* Botón del carrito */
+::ng-deep app-cart-toggle .cart-toggle {
+    position: fixed !important;
+    top: 120px !important;
+    right: 20px !important;
+    z-index: 998 !important;
+    width: 60px !important;
+    height: 60px !important;
+    background: rgba(26, 26, 26, 0.9) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid var(--primary-color) !important;
+    border-radius: 12px !important;
+    color: var(--primary-color) !important;
+    font-size: 1.5rem !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+::ng-deep app-cart-toggle .cart-toggle:hover {
+    background: var(--primary-color) !important;
+    color: var(--dark-bg) !important;
+    transform: scale(1.05) !important;
+    box-shadow: var(--shadow-glow) !important;
+}
+
+::ng-deep app-cart-toggle .cart-badge {
+    position: absolute !important;
+    top: -8px !important;
+    right: -8px !important;
+    background: var(--secondary-color) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    border: 2px solid var(--dark-bg) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding-top: 70px;
+    }
+    
+    main {
+        padding: 1rem;
+        min-height: calc(100vh - 90px);
+    }
+
+    ::ng-deep app-cart .cart {
+        width: 95% !important;
+        right: -95% !important;
+        top: 100px !important;
+        max-height: calc(100vh - 120px) !important;
+    }
+
+    ::ng-deep app-cart .cart.open {
+        right: 2.5% !important;
+    }
+
+    ::ng-deep app-cart-toggle .cart-toggle {
+        top: 100px !important;
+        right: 15px !important;
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 1.2rem !important;
+    }
+
+    ::ng-deep app-cart-toggle .cart-badge {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 0.7rem !important;
+        top: -6px !important;
+        right: -6px !important;
+    }
+}
+
+# === component\view\view.component.ts ===
+
+import { CommonModule } from '@angular/common';
+import { Component, HostListener, ViewChild, } from '@angular/core';
+import { HeaderComponent } from '../estructura/header/header.component';
+import { HeroComponent } from '../estructura/hero/hero.component';
+import { CatalogComponent } from '../modules/catalogo/catalog.component';
+import { ContactComponent } from '../modules/contact/contact.component';
+import { CartComponent } from '../modules/cart/cart.component';
+import { CartToggleComponent } from '../modules/cart/cart-toggle/cart-toggle.component';
+import { NavigationService } from '../../service/navigation.service';
+import { Subject, takeUntil } from 'rxjs';
+import { ParticlesComponent } from '../particles/particles.component';
+
+@Component({
+	selector: 'app-view',
+	standalone: true,
+	imports: [
+		CommonModule,
+		HeaderComponent,
+		HeroComponent,
+		CatalogComponent,
+		ContactComponent,
+		CartComponent,
+		CartToggleComponent,
+		ParticlesComponent
+	],
+	templateUrl: './view.component.html',
+	styleUrls: ['./view.component.scss']
+})
+export class ViewComponent {
+	@ViewChild('cartComponent') cartComponent!: CartComponent;
+
+	currentSection = 'inicio';
+	private destroy$ = new Subject<void>();
+
+	constructor(private navigationService: NavigationService) { }
+
+	ngOnInit(): void {
+		this.initializeAOS();
+
+		// Suscribirse a cambios de sección
+		this.navigationService.currentSection$
+			.pipe(takeUntil(this.destroy$))
+			.subscribe(section => {
+				this.currentSection = section;
+
+				// Cerrar carrito al cambiar de sección
+				if (this.cartComponent) {
+					this.cartComponent.closeCart();
+				}
+			});
+
+		this.setupKeyboardNavigation();
+	}
+
+	ngAfterViewInit(): void {
+		// Inicializar AOS después de que la vista esté lista
+		setTimeout(() => {
+			this.initializeAOS();
+		}, 100);
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+	}
+
+	@HostListener('document:keydown', ['$event'])
+	handleKeyboardEvent(event: KeyboardEvent): void {
+		// ESC para cerrar carrito
+		if (event.key === 'Escape' && this.cartComponent) {
+			this.cartComponent.closeCart();
+		}
+
+		// Navegación con teclas numéricas
+		switch (event.key) {
+			case '1':
+				this.navigationService.navigateToSection('inicio');
+				break;
+			case '2':
+				this.navigationService.navigateToSection('catalogo');
+				break;
+			case '3':
+				this.navigationService.navigateToSection('contacto');
+				break;
+		}
+	}
+
+	toggleCart(): void {
+		if (this.cartComponent) {
+			this.cartComponent.toggleCart();
+		} else {
+			// Fallback si no se puede acceder al ViewChild
+			const cartElement = document.querySelector('.cart');
+			if (cartElement) {
+				cartElement.classList.toggle('open');
+			}
+		}
+	}
+
+	private initializeAOS(): void {
+		if (typeof (window as any).AOS !== 'undefined') {
+			(window as any).AOS.init({
+				duration: 800,
+				easing: 'ease-in-out',
+				once: true
+			});
+		}
+	}
+
+	private setupKeyboardNavigation(): void {
+		console.log('Keyboard navigation setup completed');
+	}
+}
+
+# === guards\admin.guard.ts ===
+
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { AuthService } from '../service/auth.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AdminGuard implements CanActivate {
+  
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  canActivate(): boolean {
+    if (this.authService.isAuthenticated()) {
+      return true;
+    } else {
+      this.router.navigate(['/admin/login']);
+      return false;
+    }
+  }
+}
+
+
+# === models\product.model.ts ===
+
+// src/app/models/product.model.ts
+export interface Product {
+  id: number;
+  name: string;
+  image: string;
+  imageAlt?: string;
+  flavors: string[];
+  price: number;
+  discount: number;
+  description: string;
+  category: string;
+  features: string[];
+  puffs: string;
+  nicotine: string;
+  battery: string;
+  // Campos adicionales para administración (OPCIONALES)
+  stock?: number;
+  active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CartItem extends Product {
+  quantity: number;
+  finalPrice: number;
+}
+
+// Enum para categorías
+export enum ProductCategory {
+  ALL = 'all',
+  DESECHABLE = 'desechable',
+  POD = 'pod',
+  LIQUID = 'liquid',
+  MOD = 'mod',
+  KIT = 'kit',
+  RECARGABLE = 'recargable'
+}
+
+// Interface para filtros
+export interface ProductFilter {
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  searchTerm?: string;
+  hasDiscount?: boolean;
+  status?: 'active' | 'inactive';
+}
+
+// Interface específica para creación de productos (sin id, createdAt, updatedAt)
+export interface CreateProductRequest {
+  name: string;
+  image: string;
+  imageAlt?: string;
+  flavors: string[];
+  price: number;
+  discount: number;
+  description: string;
+  category: string;
+  features: string[];
+  puffs: string;
+  nicotine: string;
+  battery: string;
+  stock?: number;
+  active?: boolean;
+}
+
+# === service\auth.service.ts ===
+
+// src/app/services/auth.service.ts
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import * as CryptoJS from 'crypto-js';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  
+  private readonly SECRET_KEY = 'vaplure-admin-2025';
+  private readonly ADMIN_PASSWORD_HASH = '09d0cc6f394e30cc1a446fbcd47639fd431e414681f4f10d1d979cc269a106c9'; // SHA256 de "admin123"
+
+  constructor() {
+    this.checkAuthStatus();
+  }
+
+  private checkAuthStatus(): void {
+    const token = sessionStorage.getItem('admin_token');
+    const expiry = sessionStorage.getItem('admin_expiry');
+    
+    if (token && expiry) {
+      const now = new Date().getTime();
+      if (now < parseInt(expiry)) {
+        this.isAuthenticatedSubject.next(true);
+      } else {
+        this.logout();
+      }
+    }
+  }
+
+  login(password: string): boolean {
+    const passwordHash = CryptoJS.SHA256(password).toString();
+    
+    if (passwordHash === this.ADMIN_PASSWORD_HASH) {
+      const token = this.generateToken();
+      const expiry = new Date().getTime() + (30 * 60 * 1000); // 30 minutos
+      
+      sessionStorage.setItem('admin_token', token);
+      sessionStorage.setItem('admin_expiry', expiry.toString());
+      
+      this.isAuthenticatedSubject.next(true);
+      return true;
+    }
+    
+    return false;
+  }
+
+  logout(): void {
+    sessionStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_expiry');
+    this.isAuthenticatedSubject.next(false);
+  }
+
+  isAuthenticated(): boolean {
+    return this.isAuthenticatedSubject.value;
+  }
+
+  private generateToken(): string {
+    const timestamp = new Date().getTime();
+    return CryptoJS.AES.encrypt(timestamp.toString(), this.SECRET_KEY).toString();
+  }
+}
+
+
+# === service\cart.service.ts ===
+
+// 2. ACTUALIZAR cart.service.ts para usar configuración dinámica
+
+// src/app/service/cart.service.ts
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { CartItem, Product } from '../models/product.model';
+import { DataService } from './data.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CartService {
+  private cartItems: CartItem[] = [];
+  private cartSubject = new BehaviorSubject<CartItem[]>([]);
+  private cartTotalSubject = new BehaviorSubject<number>(0);
+  private cartItemCountSubject = new BehaviorSubject<number>(0);
+
+  public cart$ = this.cartSubject.asObservable();
+  public cartTotal$ = this.cartTotalSubject.asObservable();
+  public cartItemCount$ = this.cartItemCountSubject.asObservable();
+
+  constructor(private dataService: DataService) {}
+
+  addToCart(product: Product, quantity: number = 1): void {
+    const finalPrice = product.price * (1 - product.discount / 100);
+    const existingItem = this.cartItems.find(item => item.id === product.id);
+
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      const cartItem: CartItem = {
+        ...product,
+        quantity,
+        finalPrice
+      };
+      this.cartItems.push(cartItem);
+    }
+
+    this.updateCartObservables();
+  }
+
+  removeFromCart(productId: number): void {
+    this.cartItems = this.cartItems.filter(item => item.id !== productId);
+    this.updateCartObservables();
+  }
+
+  updateQuantity(productId: number, quantity: number): void {
+    const item = this.cartItems.find(item => item.id === productId);
+    if (item && quantity > 0) {
+      item.quantity = quantity;
+      this.updateCartObservables();
+    }
+  }
+
+  clearCart(): void {
+    this.cartItems = [];
+    this.updateCartObservables();
+  }
+
+  getCartItems(): CartItem[] {
+    return this.cartItems;
+  }
+
+  private updateCartObservables(): void {
+    this.cartSubject.next([...this.cartItems]);
+    
+    const total = this.cartItems.reduce((sum, item) => sum + (item.finalPrice * item.quantity), 0);
+    this.cartTotalSubject.next(total);
+    
+    const itemCount = this.cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    this.cartItemCountSubject.next(itemCount);
+  }
+
+  generateWhatsAppMessage(): string {
+    if (this.cartItems.length === 0) return '';
+
+    // Obtener configuración dinámica
+    const settings = this.dataService.getSettings();
+    const whatsappNumber = settings?.contact.whatsapp || '3207682417';
+    const cityName = settings?.contact.deliveryInfo.city || 'Montería, Córdoba';
+    const deliveryTime = settings?.contact.deliveryInfo.deliveryTime || '30-60 minutos';
+
+    let message = `¡Hola! 👋 Quiero hacer un pedido desde *${settings?.site.name || 'VAPLURE'}*:\n\n`;
+    let total = 0;
+
+    message += '🛍️ *MI PEDIDO:*\n';
+    message += '━━━━━━━━━━━━━━━━━━━━\n';
+
+    this.cartItems.forEach((item, index) => {
+      const itemTotal = item.finalPrice * item.quantity;
+      total += itemTotal;
+      message += `${index + 1}. *${item.name}*\n`;
+      message += `   📦 Cantidad: ${item.quantity}\n`;
+      message += `   💰 Precio: ${itemTotal.toLocaleString()}\n\n`;
+    });
+
+    message += '━━━━━━━━━━━━━━━━━━━━\n';
+    message += `💵 *TOTAL: ${total.toLocaleString()}*\n\n`;
+    message += `📍 *Dirección de entrega en ${cityName}:*\n`;
+    message += '(Por favor proporciona tu dirección completa)\n\n';
+    message += '🕐 *Horario preferido:*\n';
+    message += this.getAvailableSchedule() + '\n\n';
+    message += '💳 *Método de pago:* Contraentrega\n';
+    message += `⚡ *Tiempo estimado:* ${deliveryTime}\n\n`;
+    message += `¡Gracias por elegir ${settings?.site.name || 'VAPLURE'}! 🚀`;
+
+    return message;
+  }
+
+  private getAvailableSchedule(): string {
+    const settings = this.dataService.getSettings();
+    if (!settings) return '(Disponible de 9:00 AM a 10:00 PM)';
+
+    const schedule = settings.contact.schedule;
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase(); // mon, tue, etc.
+    
+    // Mapear días en español
+    const dayMap: Record<string, string> = {
+      'mon': 'monday',
+      'tue': 'tuesday', 
+      'wed': 'wednesday',
+      'thu': 'thursday',
+      'fri': 'friday',
+      'sat': 'saturday',
+      'sun': 'sunday'
+    };
+
+    const todayKey = dayMap[today] || 'monday';
+    const todaySchedule = schedule[todayKey];
+
+    if (todaySchedule && todaySchedule.isOpen) {
+      return `(Disponible hoy de ${todaySchedule.open} a ${todaySchedule.close})`;
+    } else {
+      // Encontrar el próximo día disponible
+      const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const currentIndex = dayOrder.indexOf(todayKey);
+      
+      for (let i = 1; i <= 7; i++) {
+        const nextDayIndex = (currentIndex + i) % 7;
+        const nextDay = dayOrder[nextDayIndex];
+        const nextSchedule = schedule[nextDay];
+        
+        if (nextSchedule && nextSchedule.isOpen) {
+          const dayNames: Record<string, string> = {
+            'monday': 'lunes',
+            'tuesday': 'martes',
+            'wednesday': 'miércoles',
+            'thursday': 'jueves',
+            'friday': 'viernes',
+            'saturday': 'sábado',
+            'sunday': 'domingo'
+          };
+          
+          return `(Próxima disponibilidad: ${dayNames[nextDay]} de ${nextSchedule.open} a ${nextSchedule.close})`;
+        }
+      }
+    }
+
+    return '(Contacta para confirmar horarios de disponibilidad)';
+  }
+}
+
+
+# === service\data.service.ts ===
+
+// src/app/services/data.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Product, CreateProductRequest } from '../models/product.model';
+
+export interface Settings {
+  contact: {
+    whatsapp: string;
+    email: string;
+    schedule: Record<string, {
+      open: string;
+      close: string;
+      isOpen: boolean;
+    }>;
+    deliveryInfo: {
+      city: string;
+      deliveryTime: string;
+      deliveryFee: number;
+      freeDeliveryMinimum: number;
+      availableNightDelivery: boolean;
+    };
+  };
+  site: {
+    name: string;
+    slogan: string;
+    description: string;
+    logo: string;
+    primaryColor: string;
+    secondaryColor: string;
+    accentColor: string;
+  };
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DataService {
+  private productsSubject = new BehaviorSubject<Product[]>([]);
+  private settingsSubject = new BehaviorSubject<Settings | null>(null);
+  
+  public products$ = this.productsSubject.asObservable();
+  public settings$ = this.settingsSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.loadInitialData();
+  }
+
+  private loadInitialData(): void {
+    // Primero intentar cargar desde localStorage
+    const storedProducts = this.getFromStorage('products');
+    const storedSettings = this.getFromStorage('settings');
+
+    if (storedProducts) {
+      this.productsSubject.next(storedProducts);
+    } else {
+      // Si no hay datos guardados, cargar desde JSON
+      this.http.get<{products: Product[]}>('assets/data/products.json').subscribe({
+        next: (data) => this.productsSubject.next(data.products),
+        error: (error) => {
+          console.error('Error loading products:', error);
+          // Productos por defecto en caso de error
+          this.productsSubject.next(this.getDefaultProducts());
+        }
+      });
+    }
+
+    if (storedSettings) {
+      this.settingsSubject.next(storedSettings);
+    } else {
+      // Si no hay configuración guardada, cargar desde JSON
+      this.http.get<Settings>('assets/data/settings.json').subscribe({
+        next: (data) => this.settingsSubject.next(data),
+        error: (error) => {
+          console.error('Error loading settings:', error);
+          // Configuración por defecto en caso de error
+          this.settingsSubject.next(this.getDefaultSettings());
+        }
+      });
+    }
+  }
+
+  // PRODUCTOS
+  getProducts(): Product[] {
+    return this.productsSubject.value;
+  }
+
+  addProduct(productData: CreateProductRequest): void {
+    const products = this.getProducts();
+    const newProduct: Product = {
+      ...productData,
+      id: this.generateId(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      // Valores por defecto si no se proporcionan
+      stock: productData.stock ?? 0,
+      active: productData.active ?? true,
+      imageAlt: productData.imageAlt || productData.name
+    };
+    
+    const updatedProducts = [...products, newProduct];
+    this.productsSubject.next(updatedProducts);
+    this.saveToStorage('products', updatedProducts);
+  }
+
+  updateProduct(id: number, updates: Partial<Product>): void {
+    const products = this.getProducts();
+    const index = products.findIndex(p => p.id === id);
+    
+    if (index !== -1) {
+      products[index] = { 
+        ...products[index], 
+        ...updates, 
+        updatedAt: new Date().toISOString() 
+      };
+      this.productsSubject.next([...products]);
+      this.saveToStorage('products', products);
+    }
+  }
+
+  deleteProduct(id: number): void {
+    const products = this.getProducts().filter(p => p.id !== id);
+    this.productsSubject.next(products);
+    this.saveToStorage('products', products);
+  }
+
+  // CONFIGURACIÓN
+  getSettings(): Settings | null {
+    return this.settingsSubject.value;
+  }
+
+  updateSettings(settings: Settings): void {
+    this.settingsSubject.next(settings);
+    this.saveToStorage('settings', settings);
+  }
+
+  updateContactInfo(contactInfo: Settings['contact']): void {
+    const currentSettings = this.getSettings();
+    if (currentSettings) {
+      const updatedSettings = {
+        ...currentSettings,
+        contact: contactInfo
+      };
+      this.updateSettings(updatedSettings);
+    }
+  }
+
+  // UTILIDADES
+  private generateId(): number {
+    const products = this.getProducts();
+    return products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+  }
+
+  private saveToStorage(key: string, data: any): void {
+    try {
+      localStorage.setItem(`vaplure_${key}`, JSON.stringify(data));
+    } catch (error) {
+      console.error(`Error saving ${key} to localStorage:`, error);
+    }
+  }
+
+  private getFromStorage(key: string): any {
+    try {
+      const stored = localStorage.getItem(`vaplure_${key}`);
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      console.error(`Error loading ${key} from localStorage:`, error);
+      return null;
+    }
+  }
+
+  // Datos por defecto en caso de error
+  private getDefaultProducts(): Product[] {
+    return [
+      {
+        id: 1,
+        name: "Vape Desechable Premium",
+        image: "assets/images/products/3.png",
+        imageAlt: "Vape Desechable Premium",
+        flavors: ["Mango Tropical", "Fresa Silvestre", "Menta Glacial"],
+        price: 25000,
+        discount: 15,
+        description: "Vape desechable de alta calidad con tecnología de bobina de malla",
+        category: "desechable",
+        features: ["2000 Puffs", "5% Nicotina", "Batería 850mAh"],
+        puffs: "2000",
+        nicotine: "5%",
+        battery: "850mAh",
+        stock: 50,
+        active: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  private getDefaultSettings(): Settings {
+    return {
+      contact: {
+        whatsapp: '3207682417',
+        email: 'info@vaplure.com',
+        schedule: {
+          monday: { open: '09:00', close: '22:00', isOpen: true },
+          tuesday: { open: '09:00', close: '22:00', isOpen: true },
+          wednesday: { open: '09:00', close: '22:00', isOpen: true },
+          thursday: { open: '09:00', close: '22:00', isOpen: true },
+          friday: { open: '09:00', close: '22:00', isOpen: true },
+          saturday: { open: '09:00', close: '22:00', isOpen: true },
+          sunday: { open: '09:00', close: '22:00', isOpen: true }
+        },
+        deliveryInfo: {
+          city: 'Montería, Córdoba',
+          deliveryTime: '30-60 minutos',
+          deliveryFee: 5000,
+          freeDeliveryMinimum: 50000,
+          availableNightDelivery: true
+        }
+      },
+      site: {
+        name: 'VAPLURE',
+        slogan: 'Vapor Premium & Exclusivo',
+        description: 'Productos premium seleccionados especialmente para ti',
+        logo: 'assets/images/logo.png',
+        primaryColor: '#00ff88',
+        secondaryColor: '#4c6ef5',
+        accentColor: '#00d4ff'
+      }
+    };
+  }
+}
+
+# === service\navigation.service.ts ===
+
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NavigationService {
+  private currentSectionSubject = new BehaviorSubject<string>('inicio');
+  public currentSection$ = this.currentSectionSubject.asObservable();
+
+  navigateToSection(section: string): void {
+    this.currentSectionSubject.next(section);
+  }
+
+  getCurrentSection(): string {
+    return this.currentSectionSubject.value;
+  }
+}
+
+# === service\product.service.ts ===
+
+// 1. ACTUALIZAR product.service.ts para usar DataService
+
+// src/app/service/product.service.ts
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { DataService } from './data.service';
+import { Product } from '../models/product.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProductService {
+  private filteredProductsSubject = new BehaviorSubject<Product[]>([]);
+  public filteredProducts$ = this.filteredProductsSubject.asObservable();
+  private currentFilter = 'all';
+
+  constructor(private dataService: DataService) {
+    // Suscribirse a los productos del DataService
+    this.dataService.products$.subscribe(products => {
+      this.filterProducts(this.currentFilter);
+    });
+  }
+
+  getAllProducts(): Product[] {
+    return this.dataService.getProducts();
+  }
+
+  getProductsByCategory(category: string): Product[] {
+    const products = this.getAllProducts();
+    if (category === 'all') {
+      return products;
+    }
+    return products.filter(product => product.category === category);
+  }
+
+  filterProducts(category: string): void {
+    this.currentFilter = category;
+    const filtered = this.getProductsByCategory(category);
+    this.filteredProductsSubject.next(filtered);
+  }
+
+  getCurrentFilter(): string {
+    return this.currentFilter;
+  }
+
+  getProductById(id: number): Product | undefined {
+    return this.getAllProducts().find(product => product.id === id);
+  }
+
+  searchProducts(searchTerm: string): Product[] {
+    const products = this.getAllProducts();
+    if (!searchTerm.trim()) {
+      return products;
+    }
+
+    const term = searchTerm.toLowerCase();
+    return products.filter(product => 
+      product.name.toLowerCase().includes(term) ||
+      product.description.toLowerCase().includes(term) ||
+      product.flavors.some(flavor => flavor.toLowerCase().includes(term)) ||
+      product.features.some(feature => feature.toLowerCase().includes(term))
+    );
+  }
+
+  getDiscountedProducts(): Product[] {
+    return this.getAllProducts().filter(product => product.discount > 0);
+  }
+
+  getProductsByPriceRange(minPrice: number, maxPrice: number): Product[] {
+    return this.getAllProducts().filter(product => {
+      const finalPrice = product.price * (1 - product.discount / 100);
+      return finalPrice >= minPrice && finalPrice <= maxPrice;
+    });
+  }
+
+  getCategories(): string[] {
+    const products = this.getAllProducts();
+    const categories = [...new Set(products.map(product => product.category))];
+    return ['all', ...categories];
+  }
+
+  getProductStats(): {
+    total: number;
+    byCategory: Record<string, number>;
+    averagePrice: number;
+    withDiscount: number;
+  } {
+    const products = this.getAllProducts();
+    const byCategory: Record<string, number> = {};
+    let totalPrice = 0;
+    let withDiscount = 0;
+
+    products.forEach(product => {
+      byCategory[product.category] = (byCategory[product.category] || 0) + 1;
+      totalPrice += product.price;
+      if (product.discount > 0) {
+        withDiscount++;
+      }
+    });
+
+    return {
+      total: products.length,
+      byCategory,
+      averagePrice: totalPrice / products.length,
+      withDiscount
+    };
+  }
+
+  refreshProducts(): Observable<Product[]> {
+    return new Promise<Product[]>((resolve) => {
+      setTimeout(() => {
+        const filtered = this.getProductsByCategory(this.currentFilter);
+        this.filteredProductsSubject.next(filtered);
+        resolve(filtered);
+      }, 500);
+    }) as any;
+  }
+}
+
