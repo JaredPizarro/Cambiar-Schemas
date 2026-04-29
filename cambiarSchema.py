@@ -19,7 +19,8 @@ schemas = [
     'guaranda',
     'funmanodios',
     'clidolorlu',
-    'divinami'
+    'divinami',
+    'pruebas'
 ]
 
 
