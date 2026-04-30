@@ -20,7 +20,8 @@ schemas = [
     'funmanodios',
     'clidolorlu',
     'divinami',
-    'pruebas'
+    'pruebas',
+    'lchrehabi'
 ]
 
 
@@ -28,7 +29,7 @@ schemas = [
 input_file = 'base_script.sql'
 
 # ✅ Palabra o schema base a reemplazar (sin punto al final)
-schema_base = 'sissgo'
+schema_base = 'medik'
 
 # ✅ Archivo SQL de salida único
 output_file = 'scripts_para_todos_los_schemas.sql'
